@@ -1,119 +1,196 @@
-// == EmuClicker main.js ==
-
-let subscribers = 0;
-let subsPerClick = 1;
-
-let lastClickTimes = [];
-
-const upgrades = [
-  { id: 1, name: "Video Editor", desc: "Increase Subs Per Click by 1", cost: 50, spcIncrease: 1 },
-  { id: 2, name: "Better Camera", desc: "Increase Subs Per Click by 3", cost: 150, spcIncrease: 3 },
-  { id: 3, name: "Collaborations", desc: "Increase Subs Per Click by 10", cost: 500, spcIncrease: 10 },
-  { id: 4, name: "Custom Thumbnails", desc: "Increase Subs Per Click by 5", cost: 300, spcIncrease: 5 },
-  { id: 5, name: "Live Streams", desc: "Increase Subs Per Click by 2", cost: 100, spcIncrease: 2 },
-  // Add up to 50+ upgrades as you want
-];
-
-// Keep track of how many of each upgrade bought
-const upgradeCounts = {};
-upgrades.forEach(upg => upgradeCounts[upg.id] = 0);
-
-const subscriberCountEl = document.getElementById("subscriber-count");
-const subscribeBtn = document.getElementById("subscribe-btn");
-const upgradesContainer = document.getElementById("upgrades");
-const shopToggleBtn = document.getElementById("shop-toggle-btn");
-const cpsDisplay = document.getElementById("cps");
-const spcDisplay = document.getElementById("spc");
-
-function updateSubscriberCount() {
-  subscriberCountEl.textContent = `Subscribers: ${subscribers.toLocaleString()}`;
+/* Reset */
+* {
+  box-sizing: border-box;
 }
 
-function updateSPC() {
-  spcDisplay.textContent = subsPerClick.toFixed(1);
+body {
+  margin: 0;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background: #f0f4f8; /* Very soft pale blue */
+  color: #1a1a1a;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-height: 100vh;
+  padding: 20px;
 }
 
-function calculateCPS() {
-  const now = Date.now();
-  // Remove clicks older than 1 second
-  lastClickTimes = lastClickTimes.filter(t => now - t < 1000);
-  return lastClickTimes.length;
+header h1 {
+  font-weight: 900;
+  font-size: 2.5rem;
+  color: #264653;
+  user-select: none;
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 
-function updateCPS() {
-  const cps = calculateCPS();
-  cpsDisplay.textContent = cps;
+#stats {
+  margin: 15px 0;
+  font-weight: 600;
+  font-size: 1.4rem;
+  text-align: center;
+  user-select: none;
+  display: flex;
+  gap: 30px;
+  justify-content: center;
+  color: #2a9d8f;
 }
 
-function addSubscribers(amount) {
-  subscribers += amount;
-  updateSubscriberCount();
+#cps-spc span {
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
-function buyUpgrade(upg) {
-  if (subscribers >= upg.cost) {
-    subscribers -= upg.cost;
-    upgradeCounts[upg.id]++;
-    subsPerClick += upg.spcIncrease;
-    upg.cost = Math.floor(upg.cost * 1.15); // Increase cost 15%
-    renderUpgrades();
-    updateSubscriberCount();
-    updateSPC();
-  }
+#buttons-container {
+  display: flex;
+  gap: 15px;
+  margin-bottom: 25px;
 }
 
-function renderUpgrades() {
-  upgradesContainer.innerHTML = "";
-  upgrades.forEach(upg => {
-    const count = upgradeCounts[upg.id];
-    const canBuy = subscribers >= upg.cost;
-
-    const upgDiv = document.createElement("div");
-    upgDiv.className = "upgrade";
-
-    const infoDiv = document.createElement("div");
-    infoDiv.className = "info";
-    infoDiv.innerHTML = `<div class="name">${upg.name} ${count > 0 ? `(x${count})` : ''}</div>
-                         <div class="desc">${upg.desc}</div>`;
-
-    const costSpan = document.createElement("div");
-    costSpan.className = "cost";
-    costSpan.textContent = `${upg.cost.toLocaleString()} Subs`;
-
-    const buyBtn = document.createElement("button");
-    buyBtn.textContent = "Buy";
-    buyBtn.disabled = !canBuy;
-    buyBtn.addEventListener("click", () => buyUpgrade(upg));
-
-    upgDiv.appendChild(infoDiv);
-    upgDiv.appendChild(costSpan);
-    upgDiv.appendChild(buyBtn);
-
-    upgradesContainer.appendChild(upgDiv);
-  });
+button {
+  background-color: #e76f51;
+  border: none;
+  border-radius: 15px;
+  padding: 15px 35px;
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: #fff;
+  cursor: pointer;
+  box-shadow: 0 6px 12px #bb5137;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  transition: background-color 0.25s ease, transform 0.2s ease;
+  user-select: none;
 }
 
-subscribeBtn.addEventListener("click", () => {
-  addSubscribers(subsPerClick);
-  lastClickTimes.push(Date.now());
-  updateCPS();
-});
+button:hover {
+  background-color: #f4a261;
+  transform: scale(1.07);
+}
 
-// Shop toggle button
-shopToggleBtn.addEventListener("click", () => {
-  if (upgradesContainer.classList.contains("shop-open")) {
-    upgradesContainer.classList.remove("shop-open");
-    upgradesContainer.classList.add("shop-closed");
-  } else {
-    upgradesContainer.classList.add("shop-open");
-    upgradesContainer.classList.remove("shop-closed");
-  }
-});
+button:active {
+  background-color: #d45730;
+  transform: scale(0.95);
+}
 
-// CPS update every 200ms (for smooth update)
-setInterval(updateCPS, 200);
+button:disabled {
+  background-color: #9e7a6d;
+  cursor: not-allowed;
+  box-shadow: none;
+  transform: none;
+}
 
-// Initial render
-updateSubscriberCount();
-updateSPC();
-renderUpgrades();
+/* Shop panel styling */
+#upgrades {
+  position: fixed;
+  top: 80px;
+  right: 0;
+  width: 350px;
+  max-width: 90vw;
+  height: calc(100vh - 100px);
+  background: #264653; /* dark teal */
+  box-shadow: -4px 0 15px rgba(0, 0, 0, 0.3);
+  border-left: 4px solid #2a9d8f;
+  padding: 25px;
+  overflow-y: auto;
+  transform: translateX(110%);
+  transition: transform 0.4s ease;
+  user-select: none;
+  z-index: 1000;
+  color: #f4f1de;
+  font-weight: 600;
+}
+
+#upgrades.shop-open {
+  transform: translateX(0);
+}
+
+.upgrade {
+  background: #2a9d8f;
+  margin-bottom: 15px;
+  padding: 14px 18px;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 15px;
+  transition: background-color 0.3s ease;
+}
+
+.upgrade:hover {
+  background: #3caea3;
+  cursor: pointer;
+}
+
+.upgrade .info {
+  flex-grow: 1;
+}
+
+.upgrade .name {
+  font-size: 1.1rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #f4f1de;
+}
+
+.upgrade .desc {
+  font-size: 0.9rem;
+  opacity: 0.8;
+  color: #c1dcdc;
+  margin-top: 3px;
+}
+
+.upgrade .cost {
+  font-weight: 700;
+  color: #ffe066;
+  min-width: 80px;
+  text-align: right;
+}
+
+.upgrade button {
+  background-color: #e76f51;
+  border-radius: 10px;
+  padding: 8px 14px;
+  font-weight: 700;
+  font-size: 1rem;
+  color: white;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.15s ease;
+  user-select: none;
+}
+
+.upgrade button:hover:not(:disabled) {
+  background-color: #f4a261;
+  transform: scale(1.1);
+}
+
+.upgrade button:disabled {
+  background-color: #a78e85;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Icons inside upgrades */
+.upgrade .icon {
+  font-size: 1.8rem;
+  color: #ffe066;
+}
+
+/* Footer */
+footer {
+  margin-top: auto;
+  font-size: 0.9rem;
+  color: #264653;
+  opacity: 0.6;
+  user-select: none;
+  text-align: center;
+  width: 100%;
+  padding: 15px 0 5px;
+}
