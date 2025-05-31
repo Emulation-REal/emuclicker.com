@@ -1,52 +1,390 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>EmuClicker.com - You are a YouTuber! Click Subscribe!</title>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Subscriber Clicker</title>
+<!-- Font Awesome CDN for icons -->
+<link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+/>
+<style>
+  body {
+    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f0f4f8;
+    color: #264653;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    align-items: center;
+    justify-content: flex-start;
+  }
 
-  <!-- Link to Font Awesome for icons -->
-  <link
-    rel="stylesheet"
-    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
-    crossorigin="anonymous"
-    referrerpolicy="no-referrer"
-  />
+  header {
+    margin: 1rem 0;
+    font-size: 2rem;
+    font-weight: bold;
+  }
 
-  <link rel="stylesheet" href="style.css" />
+  #subscriber-count {
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+  }
+
+  #subscribe-btn {
+    background-color: #2a9d8f;
+    border: none;
+    border-radius: 8px;
+    color: white;
+    font-size: 1.25rem;
+    padding: 1rem 2rem;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+
+  #subscribe-btn:hover {
+    background-color: #21867a;
+  }
+
+  #stats {
+    margin: 1rem 0;
+    font-size: 1.1rem;
+    display: flex;
+    gap: 2rem;
+  }
+
+  #shop-toggle-btn {
+    margin-top: 1rem;
+    background-color: #e76f51;
+    border: none;
+    border-radius: 8px;
+    color: white;
+    font-size: 1rem;
+    padding: 0.6rem 1.2rem;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+
+  #shop-toggle-btn:hover {
+    background-color: #d35235;
+  }
+
+  #upgrades {
+    position: fixed;
+    top: 0;
+    right: -320px;
+    width: 320px;
+    height: 100vh;
+    background-color: #264653;
+    color: white;
+    box-shadow: -3px 0 10px rgba(0, 0, 0, 0.3);
+    overflow-y: auto;
+    padding: 1rem;
+    transition: right 0.3s ease;
+    z-index: 100;
+  }
+
+  #upgrades.shop-open {
+    right: 0;
+  }
+
+  .upgrade {
+    background-color: #2a9d8f;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+    padding: 0.75rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    cursor: default;
+  }
+
+  .upgrade:focus {
+    outline: 2px solid #e9c46a;
+  }
+
+  .upgrade i.icon {
+    font-size: 1.5rem;
+    flex-shrink: 0;
+  }
+
+  .upgrade .info {
+    flex-grow: 1;
+  }
+
+  .upgrade .info .name {
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .upgrade .info .desc {
+    font-size: 0.9rem;
+    opacity: 0.85;
+  }
+
+  .cost {
+    font-weight: bold;
+    margin-right: 0.5rem;
+    flex-shrink: 0;
+  }
+
+  .upgrade button {
+    background-color: #e76f51;
+    border: none;
+    border-radius: 6px;
+    color: white;
+    padding: 0.3rem 0.8rem;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: background-color 0.3s ease;
+    flex-shrink: 0;
+  }
+
+  .upgrade button:hover:enabled {
+    background-color: #d35235;
+  }
+
+  .upgrade button:disabled {
+    background-color: #555;
+    cursor: not-allowed;
+  }
+</style>
 </head>
 <body>
-  <header>
-    <h1><i class="fa-solid fa-play"></i> EmuClicker.com</h1>
-  </header>
+<header>Subscriber Clicker</header>
+<div id="subscriber-count" aria-live="polite" aria-atomic="true">
+  <i class="fa-solid fa-users"></i> Subscribers: 0
+</div>
+<button id="subscribe-btn" aria-label="Subscribe button">
+  <i class="fa-solid fa-circle-plus"></i> Subscribe
+</button>
+<div id="stats">
+  <div>Clicks Per Second: <span id="cps">0</span></div>
+  <div>Subs Per Click: <span id="spc">1</span></div>
+</div>
+<button id="shop-toggle-btn" aria-expanded="false" aria-controls="upgrades">
+  Shop
+</button>
 
-  <section id="stats">
-    <div id="subscriber-count" aria-live="polite" aria-atomic="true">
-      <i class="fa-solid fa-users"></i> Subscribers: 0
-    </div>
-    <div id="cps-spc">
-      <span><i class="fa-solid fa-mouse"></i> Clicks Per Second: <strong id="cps">0</strong></span>
-      <span><i class="fa-solid fa-bolt"></i> Subs Per Click: <strong id="spc">1</strong></span>
-    </div>
-  </section>
+<div id="upgrades" aria-hidden="true" tabindex="-1"></div>
 
-  <section id="buttons-container">
-    <button id="subscribe-btn" aria-label="Subscribe">
-      <i class="fa-solid fa-circle-play"></i> Subscribe!
-    </button>
-    <button id="shop-toggle-btn" aria-label="Toggle Shop">
-      <i class="fa-solid fa-shop"></i> Shop
-    </button>
-  </section>
+<script>
+  // Game state
+  let subscribers = 0;
+  let subsPerClick = 1;
+  let lastClickTimes = [];
 
-  <aside id="upgrades" class="shop-closed" aria-label="Upgrade Shop" aria-hidden="true">
-    <!-- Upgrades inserted dynamically -->
-  </aside>
+  // Upgrade data
+  const upgrades = [
+    {
+      id: 1,
+      name: "Subscribe Button",
+      desc: "Increase Subs Per Click by 1",
+      cost: 50,
+      spcIncrease: 1,
+      icon: "fa-solid fa-mouse-pointer",
+    },
+    {
+      id: 2,
+      name: "YouTube Logo",
+      desc: "Increase Subs Per Click by 3",
+      cost: 100,
+      spcIncrease: 3,
+      icon: "fa-brands fa-youtube",
+    },
+    {
+      id: 3,
+      name: "Trending Shorts",
+      desc: "Increase Subs Per Click by 5",
+      cost: 250,
+      spcIncrease: 5,
+      icon: "fa-solid fa-video",
+    },
+    {
+      id: 4,
+      name: "Viral Thumbnail",
+      desc: "Increase Subs Per Click by 5",
+      cost: 250,
+      spcIncrease: 5,
+      icon: "fa-solid fa-image",
+    },
+    {
+      id: 5,
+      name: "Trending Videos",
+      desc: "Increase Subs Per Click by 20",
+      cost: 1200,
+      spcIncrease: 20,
+      icon: "fa-solid fa-fire",
+    },
+  ];
 
-  <footer>
-    Made by Emulation12 — YouTube Clicker Game
-  </footer>
+  // DOM elements
+  const subscriberCountEl = document.getElementById("subscriber-count");
+  const subscribeBtn = document.getElementById("subscribe-btn");
+  const cpsEl = document.getElementById("cps");
+  const spcEl = document.getElementById("spc");
+  const shopToggleBtn = document.getElementById("shop-toggle-btn");
+  const upgradesContainer = document.getElementById("upgrades");
 
-  <script src="main.js"></script>
+  let shopOpen = false;
+
+  // Update displayed subscriber count
+  function updateSubscriberDisplay() {
+    subscriberCountEl.innerHTML = `<i class="fa-solid fa-users"></i> Subscribers: ${subscribers.toLocaleString()}`;
+  }
+
+  // Update CPS calculation
+  function updateCPS() {
+    const now = Date.now();
+
+    // Remove click timestamps older than 1 second
+    lastClickTimes = lastClickTimes.filter((time) => now - time < 1000);
+
+    cpsEl.textContent = lastClickTimes.length;
+  }
+
+  // Update SPC display
+  function updateSPC() {
+    spcEl.textContent = subsPerClick;
+  }
+
+  // On subscribe button click
+  subscribeBtn.addEventListener("click", () => {
+    subscribers += subsPerClick;
+
+    // Add timestamp for CPS calculation
+    lastClickTimes.push(Date.now());
+
+    updateSubscriberDisplay();
+    updateCPS();
+
+    // Animate button press effect
+    subscribeBtn.animate(
+      [
+        { transform: "scale(1)" },
+        { transform: "scale(0.95)" },
+        { transform: "scale(1)" },
+      ],
+      { duration: 150, easing: "ease-out" }
+    );
+  });
+
+  // Shop toggle button event
+  shopToggleBtn.addEventListener("click", () => {
+    shopOpen = !shopOpen;
+
+    if (shopOpen) {
+      upgradesContainer.classList.add("shop-open");
+      upgradesContainer.setAttribute("aria-hidden", "false");
+      shopToggleBtn.setAttribute("aria-expanded", "true");
+      upgradesContainer.focus();
+    } else {
+      upgradesContainer.classList.remove("shop-open");
+      upgradesContainer.setAttribute("aria-hidden", "true");
+      shopToggleBtn.setAttribute("aria-expanded", "false");
+      shopToggleBtn.focus();
+    }
+  });
+
+  // Create upgrades UI
+  function createUpgradesUI() {
+    upgradesContainer.innerHTML = "";
+
+    upgrades.forEach((upgrade) => {
+      const upgradeDiv = document.createElement("div");
+      upgradeDiv.classList.add("upgrade");
+      upgradeDiv.setAttribute("tabindex", "0");
+
+      // Upgrade icon
+      const iconEl = document.createElement("i");
+      iconEl.className = `icon ${upgrade.icon}`;
+      upgradeDiv.appendChild(iconEl);
+
+      // Info container
+      const infoDiv = document.createElement("div");
+      infoDiv.classList.add("info");
+
+      // Name + Description
+      const nameEl = document.createElement("div");
+      nameEl.classList.add("name");
+      nameEl.textContent = upgrade.name;
+
+      // Append icon next to name
+      nameEl.prepend(iconEl.cloneNode(true));
+
+      const descEl = document.createElement("div");
+      descEl.classList.add("desc");
+      descEl.textContent = upgrade.desc;
+
+      infoDiv.appendChild(nameEl);
+      infoDiv.appendChild(descEl);
+
+      // Cost
+      const costEl = document.createElement("div");
+      costEl.classList.add("cost");
+      costEl.textContent = `${upgrade.cost.toLocaleString()} Subs`;
+
+      // Buy button
+      const buyBtn = document.createElement("button");
+      buyBtn.textContent = "Buy";
+
+      // Buy upgrade on click
+      buyBtn.addEventListener("click", () => {
+        if (subscribers >= upgrade.cost) {
+          subscribers -= upgrade.cost;
+          subsPerClick += upgrade.spcIncrease;
+
+          updateSubscriberDisplay();
+          updateSPC();
+
+          // Disable button after buying to avoid multiple purchases
+          buyBtn.disabled = true;
+          buyBtn.textContent = "Bought";
+
+          // Animate upgrade purchase
+          upgradeDiv.animate(
+            [
+              { backgroundColor: "#2a9d8f" },
+              { backgroundColor: "#55a630" },
+              { backgroundColor: "#2a9d8f" },
+            ],
+            { duration: 800 }
+          );
+        } else {
+          // Animate shake to indicate not enough subs
+          upgradeDiv.animate(
+            [
+              { transform: "translateX(0)" },
+              { transform: "translateX(-10px)" },
+              { transform: "translateX(10px)" },
+              { transform: "translateX(-10px)" },
+              { transform: "translateX(10px)" },
+              { transform: "translateX(0)" },
+            ],
+            { duration: 400 }
+          );
+        }
+      });
+
+      // Compose upgrade div layout
+      upgradeDiv.appendChild(infoDiv);
+      upgradeDiv.appendChild(costEl);
+      upgradeDiv.appendChild(buyBtn);
+
+      upgradesContainer.appendChild(upgradeDiv);
+    });
+  }
+
+  // Initialize UI
+  updateSubscriberDisplay();
+  updateSPC();
+  updateCPS();
+  createUpgradesUI();
+</script>
 </body>
 </html>
