@@ -1,194 +1,177 @@
-// Game state
-let subscribers = 0;
-let subsPerClick = 1;
-let subsPerSecond = 0;
-let lastClickTimes = [];
+// script.js
+(() => {
+  const subscribeBtn = document.getElementById("subscribe-btn");
+  const subscriberCountEl = document.getElementById("subscriber-count");
+  const cpsEl = document.getElementById("cps");
+  const spcEl = document.getElementById("spc");
+  const spsEl = document.getElementById("sps");
+  const shopToggleBtn = document.getElementById("shop-toggle-btn");
+  const upgradesSection = document.getElementById("upgrades");
 
-// Upgrade data: id, name, desc, baseCost, spcIncrease, spsIncrease, icon
-const upgrades = [
-  { id: 1, name: "Subscribe Button", desc: "Increase Subs Per Click by 1", baseCost: 50, spcIncrease: 1, spsIncrease: 0, icon: "fa-solid fa-mouse-pointer" },
-  { id: 2, name: "YouTube Logo", desc: "Increase Subs Per Click by 3", baseCost: 100, spcIncrease: 3, spsIncrease: 0, icon: "fa-brands fa-youtube" },
-  { id: 3, name: "Trending Shorts", desc: "Increase Subs Per Click by 5", baseCost: 250, spcIncrease: 5, spsIncrease: 0, icon: "fa-solid fa-video" },
-  { id: 4, name: "Viral Thumbnail", desc: "Increase Subs Per Click by 5", baseCost: 250, spcIncrease: 5, spsIncrease: 0, icon: "fa-solid fa-image" },
-  { id: 5, name: "Trending Videos", desc: "Increase Subs Per Click by 20", baseCost: 1200, spcIncrease: 20, spsIncrease: 0, icon: "fa-solid fa-fire" },
+  let subscribers = 0;
+  let subsPerClick = 1;
+  let clicks = 0;
+  let lastClickTime = 0;
+  let cps = 0;
+  let subsPerSecond = 0;
 
-  { id: 6, name: "Social Media Ads", desc: "Gain 1 Subs Per Second automatically", baseCost: 500, spcIncrease: 0, spsIncrease: 1, icon: "fa-brands fa-twitter" },
-  { id: 7, name: "Collaborations", desc: "Gain 5 Subs Per Second automatically", baseCost: 2000, spcIncrease: 0, spsIncrease: 5, icon: "fa-solid fa-handshake" },
-  { id: 8, name: "Giveaways", desc: "Gain 10 Subs Per Second automatically", baseCost: 8000, spcIncrease: 0, spsIncrease: 10, icon: "fa-solid fa-gift" },
-  { id: 9, name: "Viral Challenges", desc: "Gain 25 Subs Per Second automatically", baseCost: 35000, spcIncrease: 0, spsIncrease: 25, icon: "fa-solid fa-bolt" },
-  { id: 10, name: "Merch Store", desc: "Gain 50 Subs Per Second automatically", baseCost: 100000, spcIncrease: 0, spsIncrease: 50, icon: "fa-solid fa-shirt" },
+  // Upgrade definitions (name, base cost, base effect, icon class)
+  const upgrades = [
+    { id: "camera", name: "Better Camera", baseCost: 15, effect: 1, icon: "fa-camera" },
+    { id: "editing", name: "Faster Editing", baseCost: 50, effect: 2, icon: "fa-film" },
+    { id: "mic", name: "Quality Mic", baseCost: 120, effect: 5, icon: "fa-microphone" },
+    { id: "collab", name: "Collaborations", baseCost: 400, effect: 10, icon: "fa-handshake" },
+    { id: "ads", name: "Ad Revenue", baseCost: 1000, effect: 25, icon: "fa-bullhorn" },
+    { id: "alg", name: "Algorithm Boost", baseCost: 3000, effect: 60, icon: "fa-rocket" },
+    { id: "studio", name: "Own Studio", baseCost: 8000, effect: 150, icon: "fa-building" },
+    { id: "merch", name: "Merch Store", baseCost: 20000, effect: 400, icon: "fa-tshirt" },
+    { id: "manager", name: "Manager Hire", baseCost: 50000, effect: 1000, icon: "fa-user-tie" },
+    { id: "team", name: "Production Team", baseCost: 120000, effect: 2500, icon: "fa-users" }
+  ];
 
-  // Add more upgrades here (up to 50+)
-];
+  // Tracks how many of each upgrade the player owns
+  const owned = {};
+  upgrades.forEach(u => owned[u.id] = 0);
 
-// Track number of upgrades bought for each id
-const upgradesBought = {};
+  // Create upgrade elements dynamically
+  function createUpgradeItem(upgrade) {
+    const div = document.createElement("div");
+    div.classList.add("upgrade-item");
+    div.setAttribute("tabindex", "0");
 
-// DOM elements
-const subscriberCountEl = document.getElementById("subscriber-count");
-const subscribeBtn = document.getElementById("subscribe-btn");
-const cpsEl = document.getElementById("cps");
-const spcEl = document.getElementById("spc");
-const spsEl = document.getElementById("sps");
-const shopToggleBtn = document.getElementById("shop-toggle-btn");
-const upgradesContainer = document.getElementById("upgrades");
-
-let shopOpen = false;
-
-// Update displayed subscriber count
-function updateSubscriberDisplay() {
-  subscriberCountEl.innerHTML = `<i class="fa-solid fa-users"></i> Subscribers: ${subscribers.toLocaleString()}`;
-}
-
-// Update CPS calculation
-function updateCPS() {
-  const now = Date.now();
-  lastClickTimes = lastClickTimes.filter((time) => now - time < 1000);
-  cpsEl.textContent = lastClickTimes.length;
-}
-
-// Update SPC display
-function updateSPC() {
-  spcEl.textContent = subsPerClick.toFixed(1);
-}
-
-// Update SPS display
-function updateSPS() {
-  spsEl.textContent = subsPerSecond.toFixed(1);
-}
-
-// On subscribe button click
-subscribeBtn.addEventListener("click", () => {
-  subscribers += subsPerClick;
-
-  lastClickTimes.push(Date.now());
-
-  updateSubscriberDisplay();
-  updateCPS();
-
-  subscribeBtn.animate(
-    [
-      { transform: "scale(1)" },
-      { transform: "scale(0.95)" },
-      { transform: "scale(1)" },
-    ],
-    { duration: 150, easing: "ease-out" }
-  );
-});
-
-// Shop toggle button event
-shopToggleBtn.addEventListener("click", () => {
-  shopOpen = !shopOpen;
-
-  if (shopOpen) {
-    upgradesContainer.classList.add("shop-open");
-    upgradesContainer.setAttribute("aria-hidden", "false");
-    shopToggleBtn.setAttribute("aria-expanded", "true");
-    upgradesContainer.focus();
-  } else {
-    upgradesContainer.classList.remove("shop-open");
-    upgradesContainer.setAttribute("aria-hidden", "true");
-    shopToggleBtn.setAttribute("aria-expanded", "false");
-    shopToggleBtn.focus();
-  }
-});
-
-// Calculate cost for upgrade count (exponential scaling)
-function calculateCost(baseCost, count) {
-  return Math.floor(baseCost * Math.pow(1.15, count));
-}
-
-// Create upgrades UI
-function createUpgradesUI() {
-  upgradesContainer.innerHTML = "";
-  subsPerSecond = 0; // reset, will sum below
-
-  upgrades.forEach((upgrade) => {
-    if (!upgradesBought[upgrade.id]) upgradesBought[upgrade.id] = 0;
-    const count = upgradesBought[upgrade.id];
-    const cost = calculateCost(upgrade.baseCost, count);
-
-    const upgradeDiv = document.createElement("div");
-    upgradeDiv.classList.add("upgrade");
-    upgradeDiv.setAttribute("tabindex", "0");
-
-    // Upgrade icon
     const icon = document.createElement("i");
-    icon.className = `icon ${upgrade.icon}`;
+    icon.className = `fa-solid ${upgrade.icon} upgrade-icon`;
     icon.setAttribute("aria-hidden", "true");
 
-    // Info container
     const info = document.createElement("div");
-    info.classList.add("info");
+    info.classList.add("upgrade-info");
 
-    // Name and count
-    const name = document.createElement("div");
-    name.classList.add("name");
-    name.textContent = upgrade.name + (count > 0 ? ` x${count}` : "");
+    const name = document.createElement("h3");
+    name.textContent = upgrade.name;
 
-    // Cost
-    const costSpan = document.createElement("span");
-    costSpan.classList.add("cost");
-    costSpan.textContent = `${cost.toLocaleString()} subs`;
-    name.prepend(costSpan);
+    const cost = document.createElement("div");
+    cost.classList.add("upgrade-cost");
+    cost.textContent = `Cost: ${upgrade.baseCost}`;
 
-    // Description
-    const desc = document.createElement("div");
-    desc.classList.add("desc");
-    desc.textContent = upgrade.desc;
+    const ownedCount = document.createElement("div");
+    ownedCount.classList.add("upgrade-owned");
+    ownedCount.textContent = `Owned: 0`;
 
-    info.appendChild(name);
-    info.appendChild(desc);
-
-    // Buy button
     const buyBtn = document.createElement("button");
+    buyBtn.classList.add("buy-btn");
     buyBtn.textContent = "Buy";
-    buyBtn.setAttribute("aria-label", `Buy ${upgrade.name} upgrade`);
-    buyBtn.disabled = subscribers < cost;
+    buyBtn.setAttribute("aria-label", `Buy upgrade ${upgrade.name}`);
 
     buyBtn.addEventListener("click", () => {
-      if (subscribers >= cost) {
-        subscribers -= cost;
-        upgradesBought[upgrade.id]++;
-        subsPerClick += upgrade.spcIncrease;
-        subsPerSecond += upgrade.spsIncrease;
+      const price = getUpgradeCost(upgrade.id);
+      if (subscribers >= price) {
+        subscribers -= price;
+        owned[upgrade.id]++;
+        subsPerClick += upgrade.effect;
 
-        updateSubscriberDisplay();
-        updateSPC();
-        updateSPS();
-
-        createUpgradesUI();
+        ownedCount.textContent = `Owned: ${owned[upgrade.id]}`;
+        cost.textContent = `Cost: ${getUpgradeCost(upgrade.id)}`;
+        updateSubscribers();
+        updateStats();
+        buyBtn.classList.add("bought-animation");
+        setTimeout(() => buyBtn.classList.remove("bought-animation"), 300);
       }
     });
 
-    upgradeDiv.appendChild(icon);
-    upgradeDiv.appendChild(info);
-    upgradeDiv.appendChild(buyBtn);
+    info.appendChild(name);
+    info.appendChild(cost);
+    info.appendChild(ownedCount);
+    info.appendChild(buyBtn);
 
-    upgradesContainer.appendChild(upgradeDiv);
+    div.appendChild(icon);
+    div.appendChild(info);
 
-    // Add SPS from this upgrade
-    subsPerSecond += upgrade.spsIncrease * count;
+    return div;
+  }
+
+  // Cost increases exponentially: baseCost * 1.15^ownedCount (rounded)
+  function getUpgradeCost(id) {
+    const upgrade = upgrades.find(u => u.id === id);
+    return Math.floor(upgrade.baseCost * Math.pow(1.15, owned[id]));
+  }
+
+  // Update subscriber count display
+  function updateSubscribers() {
+    subscriberCountEl.innerHTML = `<i class="fa-solid fa-users"></i> Subscribers: ${Math.floor(subscribers)}`;
+  }
+
+  // Update CPS, SPC, SPS stats
+  function updateStats() {
+    cpsEl.textContent = cps.toFixed(1);
+    spcEl.textContent = subsPerClick.toFixed(1);
+    spsEl.textContent = subsPerSecond.toFixed(1);
+  }
+
+  // Subscribe button click handler
+  subscribeBtn.addEventListener("click", () => {
+    subscribers += subsPerClick;
+    clicks++;
+    updateSubscribers();
+
+    // Animation
+    subscribeBtn.classList.add("clicked");
+    setTimeout(() => subscribeBtn.classList.remove("clicked"), 150);
+
+    // CPS calculation
+    const now = Date.now();
+    if (lastClickTime !== 0) {
+      const delta = (now - lastClickTime) / 1000;
+      cps = 1 / delta;
+    }
+    lastClickTime = now;
+
+    updateStats();
   });
-}
 
-// Game loop to add subscribers per second
-function gameLoop() {
-  subscribers += subsPerSecond / 10; // add 1/10th of SPS every 100ms
-  updateSubscriberDisplay();
-  updateSPS();
-}
+  // Passive subs per second from upgrades (for example, sum owned * effect * 0.1)
+  function calculateSPS() {
+    let spsTotal = 0;
+    upgrades.forEach(upg => {
+      spsTotal += owned[upg.id] * upg.effect * 0.1;
+    });
+    return spsTotal;
+  }
 
-setInterval(gameLoop, 100);
+  // Game loop to add passive subs and update stats
+  setInterval(() => {
+    subsPerSecond = calculateSPS();
+    subscribers += subsPerSecond / 10; // Run 10 times per sec for smoothness
+    updateSubscribers();
+    updateStats();
+  }, 100);
 
-// Update UI every 500ms for buy buttons and CPS
-setInterval(() => {
-  createUpgradesUI();
-  updateCPS();
-}, 500);
+  // Shop toggle logic
+  shopToggleBtn.addEventListener("click", () => {
+    const isHidden = upgradesSection.getAttribute("aria-hidden") === "true";
+    if (isHidden) {
+      upgradesSection.style.transform = "translateX(0)";
+      upgradesSection.setAttribute("aria-hidden", "false");
+      shopToggleBtn.setAttribute("aria-expanded", "true");
+      upgradesSection.focus();
+    } else {
+      upgradesSection.style.transform = "translateX(100%)";
+      upgradesSection.setAttribute("aria-hidden", "true");
+      shopToggleBtn.setAttribute("aria-expanded", "false");
+    }
+  });
 
-// Initial UI setup
-updateSubscriberDisplay();
-updateSPC();
-updateSPS();
-createUpgradesUI();
+  // Initialize upgrades list
+  function initUpgrades() {
+    upgrades.forEach(upg => {
+      const upgItem = createUpgradeItem(upg);
+      upgradesSection.appendChild(upgItem);
+    });
+    // Start with shop hidden
+    upgradesSection.style.transform = "translateX(100%)";
+  }
+
+  // Initialize
+  initUpgrades();
+  updateSubscribers();
+  updateStats();
+})();
