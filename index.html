@@ -1,41 +1,49 @@
-#stats {
-  margin: 1rem 0;
-  font-size: 1.1rem;
-  display: flex;
-  gap: 2rem;
-  user-select: none;
-}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>EmuClicker.com - You are a YouTuber! Click the Subscribe Button!</title>
+  <link
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    rel="stylesheet"
+  />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header>
+    <h1>EmuClicker.com</h1>
+    <p>You are a YouTuber! Click the big red subscribe button to gain subscribers!</p>
+  </header>
 
-#stats div {
-  display: flex;
-  align-items: center;
-  gap: 0.3rem;
-}
+  <main>
+    <div id="subscriber-count" aria-live="polite">
+      <i class="fa-solid fa-users"></i> Subscribers: 0
+    </div>
 
-#stats i {
-  color: #e76f51;
-}
+    <button id="subscribe-btn" aria-label="Subscribe button">
+      <i class="fa-solid fa-bell"></i> Subscribe
+    </button>
 
-/* Add some subtle animations */
-#subscribe-btn:hover {
-  animation: pulse 1.2s infinite;
-}
+    <div id="stats" aria-live="polite" aria-atomic="true">
+      <div><i class="fa-solid fa-mouse"></i> CPS: <span id="cps">0</span></div>
+      <div><i class="fa-solid fa-users"></i> SPC: <span id="spc">1</span></div>
+      <div><i class="fa-solid fa-clock"></i> SPS: <span id="sps">0</span></div>
+    </div>
 
-@keyframes pulse {
-  0%, 100% {
-    box-shadow: 0 0 5px #2a9d8f;
-  }
-  50% {
-    box-shadow: 0 0 15px #2a9d8f;
-  }
-}
+    <button id="shop-toggle-btn" aria-expanded="false" aria-controls="upgrades">
+      🛒 Shop
+    </button>
 
-.upgrade {
-  transition: background-color 0.3s ease;
-}
-.upgrade:hover {
-  background-color: #3e3e3e;
-  cursor: pointer;
-  transform: scale(1.03);
-  transition: transform 0.2s ease;
-}
+    <section id="upgrades" aria-label="Upgrades shop" aria-hidden="true" tabindex="-1">
+      <!-- Upgrades will be dynamically injected here -->
+    </section>
+  </main>
+
+  <footer>
+    <small>Made by Emulation — EmuClicker 2025</small>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
