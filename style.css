@@ -4,97 +4,151 @@
 }
 body {
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  background: linear-gradient(135deg, #ff0000 0%, #8b0000 100%);
-  color: white;
+  background: linear-gradient(135deg, #2c3e50 0%, #4a6572 100%);
+  color: #ecf0f1;
   margin: 0;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
   align-items: center;
   padding: 20px;
+  overflow-x: hidden; /* prevent horizontal scroll */
 }
+
 h1 {
   margin-bottom: 10px;
   font-weight: 900;
-  text-shadow: 0 0 8px rgba(255, 255, 255, 0.6);
+  text-shadow: 0 0 8px rgba(236, 240, 241, 0.8);
+  user-select: none;
 }
-#subscriber-count {
-  font-size: 1.5rem;
+
+#stats {
+  margin-bottom: 10px;
+  font-weight: 600;
+  font-size: 1.2rem;
+  text-align: center;
+  user-select: none;
+}
+#cps-spc {
+  margin-top: 4px;
+  font-size: 1rem;
+  opacity: 0.8;
+}
+
+#buttons-container {
+  display: flex;
+  gap: 12px;
   margin-bottom: 20px;
-  font-weight: 700;
-  text-shadow: 0 0 6px #fff;
 }
-#subscribe-btn {
-  background-color: #cc0000;
+
+button {
+  background-color: #3498db;
   border: none;
   border-radius: 12px;
   color: white;
-  font-size: 2rem;
+  font-size: 1.5rem;
   font-weight: 700;
-  padding: 20px 60px;
+  padding: 15px 40px;
   cursor: pointer;
-  box-shadow: 0 6px 12px #a30000;
-  transition: background-color 0.2s ease;
+  box-shadow: 0 6px 12px #21618c;
+  transition: background-color 0.3s ease, transform 0.15s ease, box-shadow 0.3s ease;
   user-select: none;
 }
-#subscribe-btn:hover {
-  background-color: #e60000;
-  box-shadow: 0 8px 16px #bf0000;
+button:hover {
+  background-color: #5dade2;
+  box-shadow: 0 8px 18px #2980b9;
+  transform: scale(1.05);
 }
-#subscribe-btn:active {
-  background-color: #b20000;
-  box-shadow: inset 0 2px 4px #8b0000;
+button:active {
+  background-color: #2874a6;
+  box-shadow: inset 0 2px 4px #1b4f72;
+  transform: scale(0.95);
 }
+button:disabled {
+  background-color: #5a6a7a;
+  cursor: not-allowed;
+  box-shadow: none;
+  transform: none;
+}
+
+/* Shop panel */
 #upgrades {
-  margin-top: 30px;
-  width: 100%;
-  max-width: 600px;
+  position: fixed;
+  top: 80px;
+  right: 0;
+  width: 320px;
+  max-width: 90vw;
+  height: calc(100vh - 100px);
+  background: rgba(44, 62, 80, 0.95);
+  border-left: 3px solid #2980b9;
+  overflow-y: auto;
+  padding: 20px;
+  box-shadow: -4px 0 12px rgba(0, 0, 0, 0.6);
+  transform: translateX(100%);
+  transition: transform 0.35s ease;
+  z-index: 1000;
+  user-select: none;
+}
+#upgrades.shop-open {
+  transform: translateX(0);
 }
 .upgrade {
-  background: rgba(255, 255, 255, 0.1);
-  margin: 8px 0;
+  background: rgba(236, 240, 241, 0.1);
+  margin: 10px 0;
   padding: 14px 18px;
   border-radius: 10px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  box-shadow: 0 0 8px rgba(0,0,0,0.3);
+  box-shadow: 0 0 8px rgba(0,0,0,0.25);
+  transition: background-color 0.3s ease;
+}
+.upgrade:hover {
+  background: rgba(236, 240, 241, 0.18);
 }
 .upgrade .info {
   flex: 1;
+  padding-right: 10px;
 }
 .upgrade .name {
   font-weight: 700;
   font-size: 1.1rem;
+  color: #dbe9fa;
 }
 .upgrade .desc {
   font-size: 0.9rem;
   opacity: 0.8;
+  color: #a3b1c6;
 }
 .upgrade .cost {
   margin-right: 15px;
   font-weight: 700;
   font-size: 1rem;
+  color: #82caff;
 }
 .upgrade button {
-  background-color: #bb2222;
+  background-color: #2980b9;
   border: none;
   border-radius: 8px;
   padding: 8px 14px;
   font-weight: 700;
   color: white;
   cursor: pointer;
-  transition: background-color 0.2s ease;
+  transition: background-color 0.3s ease, transform 0.15s ease;
 }
-.upgrade button:hover {
-  background-color: #dd3333;
+.upgrade button:hover:not(:disabled) {
+  background-color: #5dade2;
+  transform: scale(1.1);
 }
 .upgrade button:disabled {
-  background-color: #662222;
+  background-color: #4a6572;
   cursor: not-allowed;
+  transform: none;
 }
+
 footer {
   margin-top: auto;
-  font-size: 0.8rem;
-  opacity: 0.7;
+  font-size: 0.9rem;
+  opacity: 0.6;
+  user-select: none;
 }
