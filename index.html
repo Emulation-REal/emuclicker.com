@@ -3,26 +3,45 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>EmuClicker.com - You are a YouTuber! Click the Subscribe button!</title>
+  <title>EmuClicker.com - You are a YouTuber! Click Subscribe!</title>
+
+  <!-- Link to Font Awesome for icons -->
+  <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    crossorigin="anonymous"
+    referrerpolicy="no-referrer"
+  />
+
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <h1>EmuClicker.com</h1>
+  <header>
+    <h1><i class="fa-solid fa-play"></i> EmuClicker.com</h1>
+  </header>
 
-  <div id="stats">
-    <div id="subscriber-count">Subscribers: 0</div>
-    <div id="cps-spc">
-      <span>Clicks Per Second: <span id="cps">0</span></span> |
-      <span>Subs Per Click: <span id="spc">1</span></span>
+  <section id="stats">
+    <div id="subscriber-count" aria-live="polite" aria-atomic="true">
+      <i class="fa-solid fa-users"></i> Subscribers: 0
     </div>
-  </div>
+    <div id="cps-spc">
+      <span><i class="fa-solid fa-mouse"></i> Clicks Per Second: <strong id="cps">0</strong></span>
+      <span><i class="fa-solid fa-bolt"></i> Subs Per Click: <strong id="spc">1</strong></span>
+    </div>
+  </section>
 
-  <div id="buttons-container">
-    <button id="subscribe-btn">Subscribe!</button>
-    <button id="shop-toggle-btn">Shop</button>
-  </div>
+  <section id="buttons-container">
+    <button id="subscribe-btn" aria-label="Subscribe">
+      <i class="fa-solid fa-circle-play"></i> Subscribe!
+    </button>
+    <button id="shop-toggle-btn" aria-label="Toggle Shop">
+      <i class="fa-solid fa-shop"></i> Shop
+    </button>
+  </section>
 
-  <div id="upgrades" class="shop-closed"></div>
+  <aside id="upgrades" class="shop-closed" aria-label="Upgrade Shop" aria-hidden="true">
+    <!-- Upgrades inserted dynamically -->
+  </aside>
 
   <footer>
     Made by Emulation12 — YouTube Clicker Game
