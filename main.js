@@ -1,41 +1,37 @@
-// == EmuClicker main.js ==
-
-// Subscribers and subs per click count
+// Game state
 let subscribers = 0;
 let subsPerClick = 1;
-
-// For tracking clicks for CPS calculation
 let lastClickTimes = [];
 
-// Upgrade data with icon classes (Font Awesome)
+// Upgrade data
 const upgrades = [
   {
     id: 1,
-    name: "Video Editor",
+    name: "Subscribe Button",
     desc: "Increase Subs Per Click by 1",
     cost: 50,
     spcIncrease: 1,
-    icon: "fa-solid fa-video",
+    icon: "fa-solid fa-mouse-pointer",
   },
   {
     id: 2,
-    name: "Better Camera",
+    name: "YouTube Logo",
     desc: "Increase Subs Per Click by 3",
-    cost: 150,
+    cost: 100,
     spcIncrease: 3,
-    icon: "fa-solid fa-camera",
+    icon: "fa-brands fa-youtube",
   },
   {
     id: 3,
-    name: "Collaborations",
-    desc: "Increase Subs Per Click by 10",
-    cost: 500,
-    spcIncrease: 10,
-    icon: "fa-solid fa-handshake",
+    name: "Trending Shorts",
+    desc: "Increase Subs Per Click by 5",
+    cost: 250,
+    spcIncrease: 5,
+    icon: "fa-solid fa-video",
   },
   {
     id: 4,
-    name: "Custom Thumbnails",
+    name: "Viral Thumbnail",
     desc: "Increase Subs Per Click by 5",
     cost: 250,
     spcIncrease: 5,
@@ -109,9 +105,13 @@ shopToggleBtn.addEventListener("click", () => {
   if (shopOpen) {
     upgradesContainer.classList.add("shop-open");
     upgradesContainer.setAttribute("aria-hidden", "false");
+    shopToggleBtn.setAttribute("aria-expanded", "true");
+    upgradesContainer.focus();
   } else {
     upgradesContainer.classList.remove("shop-open");
     upgradesContainer.setAttribute("aria-hidden", "true");
+    shopToggleBtn.setAttribute("aria-expanded", "false");
+    shopToggleBtn.focus();
   }
 });
 
@@ -125,39 +125,41 @@ function createUpgradesUI() {
     upgradeDiv.setAttribute("tabindex", "0");
 
     // Upgrade icon
-    const iconEl = document.createElement("i");
-    iconEl.className = `icon ${upgrade.icon}`;
-    upgradeDiv.appendChild(iconEl);
+    const icon = document.createElement("i");
+    icon.className = `icon ${upgrade.icon}`;
+    icon.setAttribute("aria-hidden", "true");
 
     // Info container
-    const infoDiv = document.createElement("div");
-    infoDiv.classList.add("info");
+    const info = document.createElement("div");
+    info.classList.add("info");
 
-    // Name + Description
-    const nameEl = document.createElement("div");
-    nameEl.classList.add("name");
-    nameEl.textContent = upgrade.name;
+    // Name and cost
+    const name = document.createElement("div");
+    name.classList.add("name");
+    name.textContent = upgrade.name;
 
-    // Append icon next to name
-    nameEl.prepend(iconEl.cloneNode(true));
+    const cost = document.createElement("span");
+    cost.classList.add("cost");
+    cost.textContent = `${upgrade.cost.toLocaleString()} subs`;
 
-    const descEl = document.createElement("div");
-    descEl.classList.add("desc");
-    descEl.textContent = upgrade.desc;
+    name.prepend(cost);
 
-    infoDiv.appendChild(nameEl);
-    infoDiv.appendChild(descEl);
+    // Description
+    const desc = document.createElement("div");
+    desc.classList.add("desc");
+    desc.textContent = upgrade.desc;
 
-    // Cost
-    const costEl = document.createElement("div");
-    costEl.classList.add("cost");
-    costEl.textContent = `${upgrade.cost.toLocaleString()} Subs`;
+    info.appendChild(name);
+    info.appendChild(desc);
 
     // Buy button
     const buyBtn = document.createElement("button");
     buyBtn.textContent = "Buy";
+    buyBtn.setAttribute("aria-label", `Buy ${upgrade.name} upgrade`);
 
-    // Buy upgrade on click
+    // Buy button enabled only if user can afford upgrade
+    buyBtn.disabled = subscribers < upgrade.cost;
+
     buyBtn.addEventListener("click", () => {
       if (subscribers >= upgrade.cost) {
         subscribers -= upgrade.cost;
@@ -166,46 +168,28 @@ function createUpgradesUI() {
         updateSubscriberDisplay();
         updateSPC();
 
-        // Disable button after buying to avoid multiple purchases (optional: you can allow multiple)
-        buyBtn.disabled = true;
-        buyBtn.textContent = "Bought";
+        // Increase cost by 20% after purchase (optional)
+        upgrade.cost = Math.floor(upgrade.cost * 1.2);
 
-        // Animate upgrade purchase
-        upgradeDiv.animate(
-          [
-            { backgroundColor: "#2a9d8f" },
-            { backgroundColor: "#55a630" },
-            { backgroundColor: "#2a9d8f" },
-          ],
-          { duration: 800 }
-        );
-      } else {
-        // Animate shake to indicate not enough subs
-        upgradeDiv.animate(
-          [
-            { transform: "translateX(0)" },
-            { transform: "translateX(-10px)" },
-            { transform: "translateX(10px)" },
-            { transform: "translateX(-10px)" },
-            { transform: "translateX(10px)" },
-            { transform: "translateX(0)" },
-          ],
-          { duration: 400 }
-        );
+        createUpgradesUI();
       }
     });
 
-    // Compose upgrade div layout
-    upgradeDiv.appendChild(infoDiv);
-    upgradeDiv.appendChild(costEl);
+    upgradeDiv.appendChild(icon);
+    upgradeDiv.appendChild(info);
     upgradeDiv.appendChild(buyBtn);
 
     upgradesContainer.appendChild(upgradeDiv);
   });
 }
 
-// Initialize UI
+// Update UI every 500ms to update buy button state dynamically
+setInterval(() => {
+  createUpgradesUI();
+  updateCPS();
+}, 500);
+
+// Initial UI setup
 updateSubscriberDisplay();
 updateSPC();
-updateCPS();
 createUpgradesUI();
