@@ -1,114 +1,119 @@
-(() => {
-  // Game state
-  let subscribers = 0;
-  let subscribersPerClick = 1;
-  let subscribersPerSecond = 0;
+// == EmuClicker main.js ==
 
-  // Upgrade data: 50+ upgrades with name, description, cost, effect, type
-  // type: "click" adds to per click, "auto" adds to per second
+let subscribers = 0;
+let subsPerClick = 1;
 
-  const upgrades = [];
+let lastClickTimes = [];
 
-  // Generate 50 upgrades with increasing cost and effects
-  for (let i = 1; i <= 50; i++) {
-    upgrades.push({
-      id: i,
-      name: `Upgrade #${i}`,
-      description:
-        i % 2 === 0
-          ? `Increases subscribers per click by ${i}`
-          : `Increases subscribers per second by ${i}`,
-      baseCost: Math.floor(10 * Math.pow(1.15, i * 3)),
-      cost: Math.floor(10 * Math.pow(1.15, i * 3)),
-      amountBought: 0,
-      effectValue: i,
-      type: i % 2 === 0 ? "click" : "auto",
-    });
-  }
+const upgrades = [
+  { id: 1, name: "Video Editor", desc: "Increase Subs Per Click by 1", cost: 50, spcIncrease: 1 },
+  { id: 2, name: "Better Camera", desc: "Increase Subs Per Click by 3", cost: 150, spcIncrease: 3 },
+  { id: 3, name: "Collaborations", desc: "Increase Subs Per Click by 10", cost: 500, spcIncrease: 10 },
+  { id: 4, name: "Custom Thumbnails", desc: "Increase Subs Per Click by 5", cost: 300, spcIncrease: 5 },
+  { id: 5, name: "Live Streams", desc: "Increase Subs Per Click by 2", cost: 100, spcIncrease: 2 },
+  // Add up to 50+ upgrades as you want
+];
 
-  const subscriberCountEl = document.getElementById("subscriber-count");
-  const subscribeBtn = document.getElementById("subscribe-btn");
-  const upgradesContainer = document.getElementById("upgrades");
+// Keep track of how many of each upgrade bought
+const upgradeCounts = {};
+upgrades.forEach(upg => upgradeCounts[upg.id] = 0);
 
-  // Update subscriber count text
-  function updateSubscriberCount() {
-    subscriberCountEl.textContent = `Subscribers: ${Math.floor(subscribers)}`;
-  }
+const subscriberCountEl = document.getElementById("subscriber-count");
+const subscribeBtn = document.getElementById("subscribe-btn");
+const upgradesContainer = document.getElementById("upgrades");
+const shopToggleBtn = document.getElementById("shop-toggle-btn");
+const cpsDisplay = document.getElementById("cps");
+const spcDisplay = document.getElementById("spc");
 
-  // Update all upgrade buttons enabled/disabled status
-  function updateUpgradeButtons() {
-    upgrades.forEach((upg) => {
-      const btn = document.getElementById(`upgrade-btn-${upg.id}`);
-      if (btn) {
-        btn.disabled = subscribers < upg.cost;
-        btn.textContent = `Buy (${upg.amountBought}) - Cost: ${upg.cost}`;
-      }
-    });
-  }
+function updateSubscriberCount() {
+  subscriberCountEl.textContent = `Subscribers: ${subscribers.toLocaleString()}`;
+}
 
-  // Buy upgrade
-  function buyUpgrade(id) {
-    const upg = upgrades.find((u) => u.id === id);
-    if (!upg) return;
-    if (subscribers < upg.cost) return;
+function updateSPC() {
+  spcDisplay.textContent = subsPerClick.toFixed(1);
+}
 
-    subscribers -= upg.cost;
-    upg.amountBought++;
-    // cost increase formula - exponential
-    upg.cost = Math.floor(upg.baseCost * Math.pow(1.15, upg.amountBought));
+function calculateCPS() {
+  const now = Date.now();
+  // Remove clicks older than 1 second
+  lastClickTimes = lastClickTimes.filter(t => now - t < 1000);
+  return lastClickTimes.length;
+}
 
-    // Apply effect
-    if (upg.type === "click") {
-      subscribersPerClick += upg.effectValue;
-    } else if (upg.type === "auto") {
-      subscribersPerSecond += upg.effectValue;
-    }
+function updateCPS() {
+  const cps = calculateCPS();
+  cpsDisplay.textContent = cps;
+}
 
-    updateSubscriberCount();
-    updateUpgradeButtons();
-  }
-
-  // Handle clicking subscribe button
-  subscribeBtn.addEventListener("click", () => {
-    subscribers += subscribersPerClick;
-    updateSubscriberCount();
-    updateUpgradeButtons();
-  });
-
-  // Create upgrade elements
-  function createUpgradeElements() {
-    upgradesContainer.innerHTML = "";
-    upgrades.forEach((upg) => {
-      const upgDiv = document.createElement("div");
-      upgDiv.className = "upgrade";
-
-      upgDiv.innerHTML = `
-        <div class="info">
-          <div class="name">${upg.name}</div>
-          <div class="desc">${upg.description}</div>
-        </div>
-        <div class="cost">${upg.cost}</div>
-        <button id="upgrade-btn-${upg.id}" aria-label="Buy ${upg.name}">Buy (${upg.amountBought}) - Cost: ${upg.cost}</button>
-      `;
-
-      upgradesContainer.appendChild(upgDiv);
-
-      const btn = document.getElementById(`upgrade-btn-${upg.id}`);
-      btn.addEventListener("click", () => buyUpgrade(upg.id));
-    });
-  }
-
-  // Auto increment subscribers
-  function autoIncrement() {
-    subscribers += subscribersPerSecond / 10; // 10 times per sec for smoothness
-    updateSubscriberCount();
-    updateUpgradeButtons();
-  }
-
-  createUpgradeElements();
+function addSubscribers(amount) {
+  subscribers += amount;
   updateSubscriberCount();
-  updateUpgradeButtons();
+}
 
-  // Interval for auto increment
-  setInterval(autoIncrement, 100);
-})();
+function buyUpgrade(upg) {
+  if (subscribers >= upg.cost) {
+    subscribers -= upg.cost;
+    upgradeCounts[upg.id]++;
+    subsPerClick += upg.spcIncrease;
+    upg.cost = Math.floor(upg.cost * 1.15); // Increase cost 15%
+    renderUpgrades();
+    updateSubscriberCount();
+    updateSPC();
+  }
+}
+
+function renderUpgrades() {
+  upgradesContainer.innerHTML = "";
+  upgrades.forEach(upg => {
+    const count = upgradeCounts[upg.id];
+    const canBuy = subscribers >= upg.cost;
+
+    const upgDiv = document.createElement("div");
+    upgDiv.className = "upgrade";
+
+    const infoDiv = document.createElement("div");
+    infoDiv.className = "info";
+    infoDiv.innerHTML = `<div class="name">${upg.name} ${count > 0 ? `(x${count})` : ''}</div>
+                         <div class="desc">${upg.desc}</div>`;
+
+    const costSpan = document.createElement("div");
+    costSpan.className = "cost";
+    costSpan.textContent = `${upg.cost.toLocaleString()} Subs`;
+
+    const buyBtn = document.createElement("button");
+    buyBtn.textContent = "Buy";
+    buyBtn.disabled = !canBuy;
+    buyBtn.addEventListener("click", () => buyUpgrade(upg));
+
+    upgDiv.appendChild(infoDiv);
+    upgDiv.appendChild(costSpan);
+    upgDiv.appendChild(buyBtn);
+
+    upgradesContainer.appendChild(upgDiv);
+  });
+}
+
+subscribeBtn.addEventListener("click", () => {
+  addSubscribers(subsPerClick);
+  lastClickTimes.push(Date.now());
+  updateCPS();
+});
+
+// Shop toggle button
+shopToggleBtn.addEventListener("click", () => {
+  if (upgradesContainer.classList.contains("shop-open")) {
+    upgradesContainer.classList.remove("shop-open");
+    upgradesContainer.classList.add("shop-closed");
+  } else {
+    upgradesContainer.classList.add("shop-open");
+    upgradesContainer.classList.remove("shop-closed");
+  }
+});
+
+// CPS update every 200ms (for smooth update)
+setInterval(updateCPS, 200);
+
+// Initial render
+updateSubscriberCount();
+updateSPC();
+renderUpgrades();
