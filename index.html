@@ -1,256 +1,205 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta charset="UTF-8">
   <title>EmuClicker.com</title>
   <style>
     body {
+      background: linear-gradient(to bottom, #1c1c1c, #2c2c2c);
+      color: white;
+      font-family: Arial, sans-serif;
+      text-align: center;
+      padding: 20px;
       margin: 0;
-      font-family: 'Segoe UI', sans-serif;
-      background: linear-gradient(135deg, #1f1f1f, #2e2e2e);
-      color: #ffffff;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
       overflow-x: hidden;
     }
 
-    .header {
-      text-align: center;
-      margin-top: 2rem;
-      animation: fadeIn 1s ease-out;
+    h1 {
+      font-size: 3em;
+      margin-bottom: 10px;
     }
 
-    .stats {
-      display: flex;
-      gap: 20px;
-      margin: 1rem 0;
-      font-size: 1.2rem;
-    }
-
-    .click-area {
-      margin: 1rem;
-    }
-
-    #click-btn {
-      font-size: 2rem;
-      padding: 1rem 2rem;
+    #click-button {
+      font-size: 2em;
+      padding: 15px 30px;
+      background: #4b90ff;
       border: none;
       border-radius: 12px;
-      background: #3f85ff;
       color: white;
       cursor: pointer;
-      box-shadow: 0 4px 15px rgba(63, 133, 255, 0.4);
-      transition: transform 0.1s, background 0.3s;
+      transition: 0.2s;
     }
 
-    #click-btn:hover {
-      background: #629eff;
+    #click-button:hover {
+      background: #3b70dd;
     }
 
-    #click-btn:active {
-      transform: scale(0.95);
+    #subscribers {
+      font-size: 2em;
+      margin: 20px 0;
     }
 
-    #shop-toggle {
-      position: fixed;
-      right: 20px;
-      top: 20px;
-      background: #444;
-      color: white;
-      padding: 0.5rem 1rem;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-    }
-
-    .shop {
-      position: fixed;
-      right: 0;
-      top: 70px;
-      width: 320px;
-      max-height: 90vh;
-      overflow-y: auto;
-      background: #2b2b2b;
-      border-left: 2px solid #444;
-      padding: 1rem;
-      display: none;
-      flex-direction: column;
-    }
-
-    .shop.visible {
+    #upgrades {
       display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
     }
 
     .upgrade {
-      background: #3a3a3a;
-      margin: 0.5rem 0;
-      padding: 0.7rem;
+      background: #333;
+      padding: 10px;
+      margin: 10px;
+      border-radius: 10px;
+      width: 200px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.5);
+    }
+
+    .upgrade button {
+      width: 100%;
+      padding: 10px;
+      background: #4caf50;
+      color: white;
+      border: none;
       border-radius: 8px;
+      font-size: 1em;
       cursor: pointer;
-      transition: background 0.3s;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
     }
 
-    .upgrade:hover {
-      background: #4a4a4a;
+    .upgrade button:hover {
+      background: #3e8e41;
     }
 
-    .upgrade-icon {
-      margin-right: 10px;
+    .achievement {
+      position: fixed;
+      bottom: -100px;
+      left: 20px;
+      background: #4b90ff;
+      padding: 15px 25px;
+      border-radius: 8px;
+      color: white;
+      font-size: 1.1em;
+      box-shadow: 0 0 10px rgba(0,0,0,0.6);
+      transition: bottom 0.5s ease;
+      z-index: 9999;
     }
 
-    audio {
-      display: none;
+    .achievement.show {
+      bottom: 20px;
     }
 
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(-10px); }
-      to { opacity: 1; transform: translateY(0); }
+    .popup {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: #f39c12;
+      color: white;
+      padding: 15px 25px;
+      border-radius: 8px;
+      font-weight: bold;
+      opacity: 0;
+      transition: opacity 0.5s ease;
+      z-index: 9999;
+    }
+
+    .popup.show {
+      opacity: 1;
     }
   </style>
 </head>
 <body>
-  <div class="header">
-    <h1>🎬 EmuClicker.com</h1>
-    <p>Click to gain subscribers and upgrade your YouTube empire!</p>
-  </div>
+  <h1>🎮 EmuClicker</h1>
+  <p id="subscribers">Subscribers: 0</p>
+  <button id="click-button">📌 Subscribe!</button>
 
-  <div class="stats">
-    <span id="subscribers">Subscribers: 0</span>
-    <span id="spc">SPC: 1</span>
-    <span id="cps">CPS: 0</span>
-  </div>
+  <div id="upgrades"></div>
 
-  <div class="click-area">
-    <button id="click-btn">🔴 Subscribe</button>
-  </div>
+  <div id="achievement" class="achievement"></div>
+  <div id="popup" class="popup">Remember to subscribe to my YouTube! @Emulation12</div>
 
-  <button id="shop-toggle">🛒 Shop</button>
-
-  <div id="shop" class="shop">
-    <h2>Upgrades</h2>
-    <div id="upgrade-list"></div>
-  </div>
-
-  <audio autoplay loop>
-    <source src="https://cdn.pixabay.com/audio/2022/10/20/audio_91be85e9a2.mp3" type="audio/mpeg" />
+  <!-- Background music -->
+  <audio id="bg-music" loop autoplay>
+    <source src="https://cdn.pixabay.com/audio/2022/08/22/audio_655510b5ba.mp3" type="audio/mpeg">
+    Your browser does not support the audio element.
   </audio>
 
   <script>
     let subscribers = 0;
-    let spc = 1;
-    let cps = 0;
+    let clickPower = 1;
+    const milestones = [10, 50, 100, 250, 500, 1000];
+    let achieved = new Set();
 
     const upgrades = [
-      { name: "Mouse Upgrade", icon: "🖱️", type: "spc", amount: 1, cost: 50 },
-      { name: "Better Thumbnail", icon: "🖼️", type: "spc", amount: 2, cost: 100 },
-      { name: "Catchy Title", icon: "📰", type: "spc", amount: 3, cost: 200 },
-      { name: "Video Editing Software", icon: "🎞️", type: "spc", amount: 5, cost: 400 },
-      { name: "Subscriber Bot", icon: "🤖", type: "cps", amount: 1, cost: 500 },
-      { name: "Faster Internet", icon: "📶", type: "cps", amount: 2, cost: 750 },
-      { name: "Better Mic", icon: "🎤", type: "spc", amount: 6, cost: 1000 },
-      { name: "Channel Trailer", icon: "📽️", type: "spc", amount: 8, cost: 1500 },
-      { name: "Livestreaming", icon: "📡", type: "cps", amount: 4, cost: 1800 },
-      { name: "Social Media Boost", icon: "📱", type: "cps", amount: 5, cost: 2200 },
-      { name: "Sponsorship", icon: "💼", type: "cps", amount: 7, cost: 3000 },
-      { name: "Ad Campaign", icon: "📢", type: "cps", amount: 10, cost: 4000 },
-      { name: "Daily Uploads", icon: "📅", type: "spc", amount: 10, cost: 5000 },
-      { name: "Community Tab", icon: "💬", type: "spc", amount: 12, cost: 6000 },
-      { name: "Editing Team", icon: "👨‍💻", type: "spc", amount: 15, cost: 7500 },
-      { name: "Merchandise", icon: "👕", type: "cps", amount: 12, cost: 9000 },
-      { name: "YouTube Shorts", icon: "📱", type: "spc", amount: 18, cost: 11000 },
-      { name: "Thumbnail Designer", icon: "🎨", type: "spc", amount: 20, cost: 13000 },
-      { name: "Music Rights", icon: "🎶", type: "spc", amount: 22, cost: 15000 },
-      { name: "Giveaway", icon: "🎁", type: "cps", amount: 20, cost: 17000 },
-      { name: "Dedicated Studio", icon: "🏢", type: "spc", amount: 25, cost: 19000 },
-      { name: "Fan Meetups", icon: "👥", type: "cps", amount: 25, cost: 21000 },
-      { name: "Collab w/ Influencer", icon: "🤝", type: "spc", amount: 30, cost: 24000 },
-      { name: "Team Manager", icon: "📋", type: "cps", amount: 30, cost: 27000 },
-      { name: "Gaming Chair", icon: "🪑", type: "spc", amount: 32, cost: 30000 },
-      { name: "Dual Monitors", icon: "🖥️", type: "spc", amount: 35, cost: 34000 },
-      { name: "Studio Lights", icon: "💡", type: "spc", amount: 38, cost: 38000 },
-      { name: "Green Screen", icon: "🟩", type: "spc", amount: 40, cost: 42000 },
-      { name: "4K Camera", icon: "📸", type: "spc", amount: 45, cost: 47000 },
-      { name: "Custom PC", icon: "🧠", type: "spc", amount: 50, cost: 52000 },
-      { name: "Editor Interns", icon: "👨‍🎓", type: "cps", amount: 35, cost: 57000 },
-      { name: "Voice Coach", icon: "🗣️", type: "spc", amount: 55, cost: 63000 },
-      { name: "Top Comment Pinned", icon: "📌", type: "cps", amount: 40, cost: 70000 },
-      { name: "Website Launch", icon: "🌐", type: "spc", amount: 60, cost: 77000 },
-      { name: "Ad-Free Content", icon: "🚫", type: "cps", amount: 45, cost: 84000 },
-      { name: "Documentary Series", icon: "🎬", type: "cps", amount: 50, cost: 92000 },
-      { name: "Viral Challenge", icon: "🔥", type: "cps", amount: 55, cost: 100000 },
-      { name: "Studio Upgrade", icon: "🏗️", type: "spc", amount: 70, cost: 110000 },
-      { name: "Reality Show", icon: "📺", type: "cps", amount: 60, cost: 120000 },
-      { name: "National Ad Spot", icon: "🗽", type: "cps", amount: 65, cost: 130000 },
-      { name: "Celebrity Interview", icon: "🎤", type: "spc", amount: 75, cost: 140000 },
-      { name: "Streaming Partnership", icon: "📡", type: "cps", amount: 70, cost: 150000 },
-      { name: "App Release", icon: "📲", type: "cps", amount: 75, cost: 160000 },
-      { name: "YouTube Original", icon: "🎞️", type: "spc", amount: 80, cost: 170000 },
-      { name: "Creator Award", icon: "🏆", type: "spc", amount: 85, cost: 180000 },
-      { name: "TV Appearance", icon: "📺", type: "cps", amount: 80, cost: 190000 },
-      { name: "Book Deal", icon: "📚", type: "spc", amount: 90, cost: 200000 },
-      { name: "World Tour", icon: "🌍", type: "cps", amount: 85, cost: 210000 },
+      { name: "📢 Basic Mic", cost: 10, power: 1 },
+      { name: "🎙️ Podcast Setup", cost: 50, power: 2 },
+      { name: "📷 Webcam Upgrade", cost: 100, power: 5 },
+      { name: "💻 Stream Deck", cost: 200, power: 10 },
+      { name: "🎬 Editor Team", cost: 500, power: 15 },
+      { name: "📡 Sponsorships", cost: 1000, power: 25 },
+      { name: "🚀 Viral Video", cost: 2000, power: 40 },
+      { name: "👨‍💼 Manager", cost: 5000, power: 75 },
+      { name: "🏆 Gold Play Button", cost: 10000, power: 150 },
+      { name: "🌐 Worldwide Fame", cost: 20000, power: 300 },
     ];
 
-    const subsDisplay = document.getElementById('subscribers');
-    const spcDisplay = document.getElementById('spc');
-    const cpsDisplay = document.getElementById('cps');
-    const clickBtn = document.getElementById('click-btn');
-    const shopToggle = document.getElementById('shop-toggle');
-    const shop = document.getElementById('shop');
-    const upgradeList = document.getElementById('upgrade-list');
+    const clickButton = document.getElementById("click-button");
+    const subDisplay = document.getElementById("subscribers");
+    const upgradesContainer = document.getElementById("upgrades");
+    const achievementEl = document.getElementById("achievement");
+    const popupEl = document.getElementById("popup");
 
-    function updateStats() {
-      subsDisplay.textContent = `Subscribers: ${Math.floor(subscribers)}`;
-      spcDisplay.textContent = `SPC: ${spc}`;
-      cpsDisplay.textContent = `CPS: ${cps}`;
+    function updateSubscribers() {
+      subDisplay.textContent = `Subscribers: ${subscribers}`;
     }
 
-    function buyUpgrade(upg) {
-      if (subscribers >= upg.cost) {
-        subscribers -= upg.cost;
-        if (upg.type === "spc") spc += upg.amount;
-        else cps += upg.amount;
-        upg.cost = Math.floor(upg.cost * 1.6); // price inflation
-        renderUpgrades();
-        updateStats();
+    function showAchievement(text) {
+      achievementEl.textContent = `🏆 Achievement Unlocked: ${text}`;
+      achievementEl.classList.add("show");
+      setTimeout(() => {
+        achievementEl.classList.remove("show");
+      }, 4000);
+    }
+
+    function showReminderPopup() {
+      popupEl.classList.add("show");
+      setTimeout(() => {
+        popupEl.classList.remove("show");
+      }, 4000);
+    }
+
+    clickButton.addEventListener("click", () => {
+      subscribers += clickPower;
+      updateSubscribers();
+
+      for (let milestone of milestones) {
+        if (subscribers >= milestone && !achieved.has(milestone)) {
+          achieved.add(milestone);
+          showAchievement(`Reached ${milestone} subscribers!`);
+        }
       }
-    }
+    });
 
-    function renderUpgrades() {
-      upgradeList.innerHTML = "";
-      upgrades.forEach(upg => {
-        const btn = document.createElement("div");
-        btn.className = "upgrade";
-        btn.innerHTML = `
-          <span><span class="upgrade-icon">${upg.icon}</span> ${upg.name}</span>
-          <span>${upg.type.toUpperCase()} +${upg.amount} ($${upg.cost})</span>`;
-        btn.onclick = () => buyUpgrade(upg);
-        upgradeList.appendChild(btn);
+    upgrades.forEach((upgrade, index) => {
+      const div = document.createElement("div");
+      div.className = "upgrade";
+      div.innerHTML = `
+        <h3>${upgrade.name}</h3>
+        <p>Cost: ${upgrade.cost} subs</p>
+        <p>+${upgrade.power} per click</p>
+        <button id="buy-${index}">Buy</button>
+      `;
+      upgradesContainer.appendChild(div);
+
+      document.getElementById(`buy-${index}`).addEventListener("click", () => {
+        if (subscribers >= upgrade.cost) {
+          subscribers -= upgrade.cost;
+          clickPower += upgrade.power;
+          updateSubscribers();
+        }
       });
-    }
+    });
 
-    clickBtn.onclick = () => {
-      subscribers += spc;
-      updateStats();
-    };
-
-    setInterval(() => {
-      subscribers += cps / 10;
-      updateStats();
-    }, 100); // 10 updates per second
-
-    shopToggle.onclick = () => {
-      shop.classList.toggle("visible");
-    };
-
-    // Init
-    renderUpgrades();
-    updateStats();
+    // Start reminder popup interval
+    setInterval(showReminderPopup, 150000); // every 2.5 minutes
   </script>
 </body>
 </html>
