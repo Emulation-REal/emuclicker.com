@@ -8,8 +8,8 @@
     body {
       margin: 0;
       font-family: 'Segoe UI', sans-serif;
-      background: linear-gradient(to bottom right, #2b2b2b, #1e1e1e);
-      color: white;
+      background: linear-gradient(135deg, #1f1f1f, #2e2e2e);
+      color: #ffffff;
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -38,11 +38,15 @@
       padding: 1rem 2rem;
       border: none;
       border-radius: 12px;
-      background: #ff4f4f;
+      background: #3f85ff;
       color: white;
       cursor: pointer;
-      box-shadow: 0 4px 15px rgba(255, 79, 79, 0.5);
-      transition: transform 0.1s;
+      box-shadow: 0 4px 15px rgba(63, 133, 255, 0.4);
+      transition: transform 0.1s, background 0.3s;
+    }
+
+    #click-btn:hover {
+      background: #629eff;
     }
 
     #click-btn:active {
@@ -53,7 +57,7 @@
       position: fixed;
       right: 20px;
       top: 20px;
-      background: #333;
+      background: #444;
       color: white;
       padding: 0.5rem 1rem;
       border: none;
@@ -65,10 +69,10 @@
       position: fixed;
       right: 0;
       top: 70px;
-      width: 300px;
+      width: 320px;
       max-height: 90vh;
       overflow-y: auto;
-      background: #222;
+      background: #2b2b2b;
       border-left: 2px solid #444;
       padding: 1rem;
       display: none;
@@ -80,7 +84,7 @@
     }
 
     .upgrade {
-      background: #333;
+      background: #3a3a3a;
       margin: 0.5rem 0;
       padding: 0.7rem;
       border-radius: 8px;
@@ -92,11 +96,15 @@
     }
 
     .upgrade:hover {
-      background: #444;
+      background: #4a4a4a;
     }
 
     .upgrade-icon {
       margin-right: 10px;
+    }
+
+    audio {
+      display: none;
     }
 
     @keyframes fadeIn {
@@ -108,7 +116,7 @@
 <body>
   <div class="header">
     <h1>🎬 EmuClicker.com</h1>
-    <p>Click to get subscribers, unlock upgrades, and grow your channel!</p>
+    <p>Click to gain subscribers and upgrade your YouTube empire!</p>
   </div>
 
   <div class="stats">
@@ -118,7 +126,7 @@
   </div>
 
   <div class="click-area">
-    <button id="click-btn"><i class="fas fa-play"></i> Subscribe</button>
+    <button id="click-btn">🔴 Subscribe</button>
   </div>
 
   <button id="shop-toggle">🛒 Shop</button>
@@ -128,23 +136,65 @@
     <div id="upgrade-list"></div>
   </div>
 
-  <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+  <audio autoplay loop>
+    <source src="https://cdn.pixabay.com/audio/2022/10/20/audio_91be85e9a2.mp3" type="audio/mpeg" />
+  </audio>
+
   <script>
     let subscribers = 0;
     let spc = 1;
     let cps = 0;
-    const upgrades = [];
 
-    for (let i = 1; i <= 50; i++) {
-      upgrades.push({
-        id: i,
-        name: `Upgrade ${i}`,
-        icon: "🔥",
-        type: i % 2 === 0 ? "spc" : "cps",
-        amount: i,
-        cost: i * 100
-      });
-    }
+    const upgrades = [
+      { name: "Mouse Upgrade", icon: "🖱️", type: "spc", amount: 1, cost: 50 },
+      { name: "Better Thumbnail", icon: "🖼️", type: "spc", amount: 2, cost: 100 },
+      { name: "Catchy Title", icon: "📰", type: "spc", amount: 3, cost: 200 },
+      { name: "Video Editing Software", icon: "🎞️", type: "spc", amount: 5, cost: 400 },
+      { name: "Subscriber Bot", icon: "🤖", type: "cps", amount: 1, cost: 500 },
+      { name: "Faster Internet", icon: "📶", type: "cps", amount: 2, cost: 750 },
+      { name: "Better Mic", icon: "🎤", type: "spc", amount: 6, cost: 1000 },
+      { name: "Channel Trailer", icon: "📽️", type: "spc", amount: 8, cost: 1500 },
+      { name: "Livestreaming", icon: "📡", type: "cps", amount: 4, cost: 1800 },
+      { name: "Social Media Boost", icon: "📱", type: "cps", amount: 5, cost: 2200 },
+      { name: "Sponsorship", icon: "💼", type: "cps", amount: 7, cost: 3000 },
+      { name: "Ad Campaign", icon: "📢", type: "cps", amount: 10, cost: 4000 },
+      { name: "Daily Uploads", icon: "📅", type: "spc", amount: 10, cost: 5000 },
+      { name: "Community Tab", icon: "💬", type: "spc", amount: 12, cost: 6000 },
+      { name: "Editing Team", icon: "👨‍💻", type: "spc", amount: 15, cost: 7500 },
+      { name: "Merchandise", icon: "👕", type: "cps", amount: 12, cost: 9000 },
+      { name: "YouTube Shorts", icon: "📱", type: "spc", amount: 18, cost: 11000 },
+      { name: "Thumbnail Designer", icon: "🎨", type: "spc", amount: 20, cost: 13000 },
+      { name: "Music Rights", icon: "🎶", type: "spc", amount: 22, cost: 15000 },
+      { name: "Giveaway", icon: "🎁", type: "cps", amount: 20, cost: 17000 },
+      { name: "Dedicated Studio", icon: "🏢", type: "spc", amount: 25, cost: 19000 },
+      { name: "Fan Meetups", icon: "👥", type: "cps", amount: 25, cost: 21000 },
+      { name: "Collab w/ Influencer", icon: "🤝", type: "spc", amount: 30, cost: 24000 },
+      { name: "Team Manager", icon: "📋", type: "cps", amount: 30, cost: 27000 },
+      { name: "Gaming Chair", icon: "🪑", type: "spc", amount: 32, cost: 30000 },
+      { name: "Dual Monitors", icon: "🖥️", type: "spc", amount: 35, cost: 34000 },
+      { name: "Studio Lights", icon: "💡", type: "spc", amount: 38, cost: 38000 },
+      { name: "Green Screen", icon: "🟩", type: "spc", amount: 40, cost: 42000 },
+      { name: "4K Camera", icon: "📸", type: "spc", amount: 45, cost: 47000 },
+      { name: "Custom PC", icon: "🧠", type: "spc", amount: 50, cost: 52000 },
+      { name: "Editor Interns", icon: "👨‍🎓", type: "cps", amount: 35, cost: 57000 },
+      { name: "Voice Coach", icon: "🗣️", type: "spc", amount: 55, cost: 63000 },
+      { name: "Top Comment Pinned", icon: "📌", type: "cps", amount: 40, cost: 70000 },
+      { name: "Website Launch", icon: "🌐", type: "spc", amount: 60, cost: 77000 },
+      { name: "Ad-Free Content", icon: "🚫", type: "cps", amount: 45, cost: 84000 },
+      { name: "Documentary Series", icon: "🎬", type: "cps", amount: 50, cost: 92000 },
+      { name: "Viral Challenge", icon: "🔥", type: "cps", amount: 55, cost: 100000 },
+      { name: "Studio Upgrade", icon: "🏗️", type: "spc", amount: 70, cost: 110000 },
+      { name: "Reality Show", icon: "📺", type: "cps", amount: 60, cost: 120000 },
+      { name: "National Ad Spot", icon: "🗽", type: "cps", amount: 65, cost: 130000 },
+      { name: "Celebrity Interview", icon: "🎤", type: "spc", amount: 75, cost: 140000 },
+      { name: "Streaming Partnership", icon: "📡", type: "cps", amount: 70, cost: 150000 },
+      { name: "App Release", icon: "📲", type: "cps", amount: 75, cost: 160000 },
+      { name: "YouTube Original", icon: "🎞️", type: "spc", amount: 80, cost: 170000 },
+      { name: "Creator Award", icon: "🏆", type: "spc", amount: 85, cost: 180000 },
+      { name: "TV Appearance", icon: "📺", type: "cps", amount: 80, cost: 190000 },
+      { name: "Book Deal", icon: "📚", type: "spc", amount: 90, cost: 200000 },
+      { name: "World Tour", icon: "🌍", type: "cps", amount: 85, cost: 210000 },
+    ];
 
     const subsDisplay = document.getElementById('subscribers');
     const spcDisplay = document.getElementById('spc');
@@ -165,7 +215,7 @@
         subscribers -= upg.cost;
         if (upg.type === "spc") spc += upg.amount;
         else cps += upg.amount;
-        upg.cost = Math.floor(upg.cost * 1.5); // Price increases each time
+        upg.cost = Math.floor(upg.cost * 1.6); // price inflation
         renderUpgrades();
         updateStats();
       }
@@ -192,13 +242,13 @@
     setInterval(() => {
       subscribers += cps / 10;
       updateStats();
-    }, 100); // 10x per second for smooth gain
+    }, 100); // 10 updates per second
 
     shopToggle.onclick = () => {
       shop.classList.toggle("visible");
     };
 
-    // Initialize
+    // Init
     renderUpgrades();
     updateStats();
   </script>
