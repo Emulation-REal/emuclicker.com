@@ -1,196 +1,211 @@
-/* Reset */
-* {
-  box-sizing: border-box;
+// == EmuClicker main.js ==
+
+// Subscribers and subs per click count
+let subscribers = 0;
+let subsPerClick = 1;
+
+// For tracking clicks for CPS calculation
+let lastClickTimes = [];
+
+// Upgrade data with icon classes (Font Awesome)
+const upgrades = [
+  {
+    id: 1,
+    name: "Video Editor",
+    desc: "Increase Subs Per Click by 1",
+    cost: 50,
+    spcIncrease: 1,
+    icon: "fa-solid fa-video",
+  },
+  {
+    id: 2,
+    name: "Better Camera",
+    desc: "Increase Subs Per Click by 3",
+    cost: 150,
+    spcIncrease: 3,
+    icon: "fa-solid fa-camera",
+  },
+  {
+    id: 3,
+    name: "Collaborations",
+    desc: "Increase Subs Per Click by 10",
+    cost: 500,
+    spcIncrease: 10,
+    icon: "fa-solid fa-handshake",
+  },
+  {
+    id: 4,
+    name: "Custom Thumbnails",
+    desc: "Increase Subs Per Click by 5",
+    cost: 250,
+    spcIncrease: 5,
+    icon: "fa-solid fa-image",
+  },
+  {
+    id: 5,
+    name: "Trending Videos",
+    desc: "Increase Subs Per Click by 20",
+    cost: 1200,
+    spcIncrease: 20,
+    icon: "fa-solid fa-fire",
+  },
+];
+
+// DOM elements
+const subscriberCountEl = document.getElementById("subscriber-count");
+const subscribeBtn = document.getElementById("subscribe-btn");
+const cpsEl = document.getElementById("cps");
+const spcEl = document.getElementById("spc");
+const shopToggleBtn = document.getElementById("shop-toggle-btn");
+const upgradesContainer = document.getElementById("upgrades");
+
+let shopOpen = false;
+
+// Update displayed subscriber count
+function updateSubscriberDisplay() {
+  subscriberCountEl.innerHTML = `<i class="fa-solid fa-users"></i> Subscribers: ${subscribers.toLocaleString()}`;
 }
 
-body {
-  margin: 0;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  background: #f0f4f8; /* Very soft pale blue */
-  color: #1a1a1a;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  min-height: 100vh;
-  padding: 20px;
+// Update CPS calculation
+function updateCPS() {
+  const now = Date.now();
+
+  // Remove click timestamps older than 1 second
+  lastClickTimes = lastClickTimes.filter((time) => now - time < 1000);
+
+  cpsEl.textContent = lastClickTimes.length;
 }
 
-header h1 {
-  font-weight: 900;
-  font-size: 2.5rem;
-  color: #264653;
-  user-select: none;
-  display: flex;
-  align-items: center;
-  gap: 10px;
+// Update SPC display
+function updateSPC() {
+  spcEl.textContent = subsPerClick;
 }
 
-#stats {
-  margin: 15px 0;
-  font-weight: 600;
-  font-size: 1.4rem;
-  text-align: center;
-  user-select: none;
-  display: flex;
-  gap: 30px;
-  justify-content: center;
-  color: #2a9d8f;
+// On subscribe button click
+subscribeBtn.addEventListener("click", () => {
+  subscribers += subsPerClick;
+
+  // Add timestamp for CPS calculation
+  lastClickTimes.push(Date.now());
+
+  updateSubscriberDisplay();
+  updateCPS();
+
+  // Animate button press effect
+  subscribeBtn.animate(
+    [
+      { transform: "scale(1)" },
+      { transform: "scale(0.95)" },
+      { transform: "scale(1)" },
+    ],
+    { duration: 150, easing: "ease-out" }
+  );
+});
+
+// Shop toggle button event
+shopToggleBtn.addEventListener("click", () => {
+  shopOpen = !shopOpen;
+
+  if (shopOpen) {
+    upgradesContainer.classList.add("shop-open");
+    upgradesContainer.setAttribute("aria-hidden", "false");
+  } else {
+    upgradesContainer.classList.remove("shop-open");
+    upgradesContainer.setAttribute("aria-hidden", "true");
+  }
+});
+
+// Create upgrades UI
+function createUpgradesUI() {
+  upgradesContainer.innerHTML = "";
+
+  upgrades.forEach((upgrade) => {
+    const upgradeDiv = document.createElement("div");
+    upgradeDiv.classList.add("upgrade");
+    upgradeDiv.setAttribute("tabindex", "0");
+
+    // Upgrade icon
+    const iconEl = document.createElement("i");
+    iconEl.className = `icon ${upgrade.icon}`;
+    upgradeDiv.appendChild(iconEl);
+
+    // Info container
+    const infoDiv = document.createElement("div");
+    infoDiv.classList.add("info");
+
+    // Name + Description
+    const nameEl = document.createElement("div");
+    nameEl.classList.add("name");
+    nameEl.textContent = upgrade.name;
+
+    // Append icon next to name
+    nameEl.prepend(iconEl.cloneNode(true));
+
+    const descEl = document.createElement("div");
+    descEl.classList.add("desc");
+    descEl.textContent = upgrade.desc;
+
+    infoDiv.appendChild(nameEl);
+    infoDiv.appendChild(descEl);
+
+    // Cost
+    const costEl = document.createElement("div");
+    costEl.classList.add("cost");
+    costEl.textContent = `${upgrade.cost.toLocaleString()} Subs`;
+
+    // Buy button
+    const buyBtn = document.createElement("button");
+    buyBtn.textContent = "Buy";
+
+    // Buy upgrade on click
+    buyBtn.addEventListener("click", () => {
+      if (subscribers >= upgrade.cost) {
+        subscribers -= upgrade.cost;
+        subsPerClick += upgrade.spcIncrease;
+
+        updateSubscriberDisplay();
+        updateSPC();
+
+        // Disable button after buying to avoid multiple purchases (optional: you can allow multiple)
+        buyBtn.disabled = true;
+        buyBtn.textContent = "Bought";
+
+        // Animate upgrade purchase
+        upgradeDiv.animate(
+          [
+            { backgroundColor: "#2a9d8f" },
+            { backgroundColor: "#55a630" },
+            { backgroundColor: "#2a9d8f" },
+          ],
+          { duration: 800 }
+        );
+      } else {
+        // Animate shake to indicate not enough subs
+        upgradeDiv.animate(
+          [
+            { transform: "translateX(0)" },
+            { transform: "translateX(-10px)" },
+            { transform: "translateX(10px)" },
+            { transform: "translateX(-10px)" },
+            { transform: "translateX(10px)" },
+            { transform: "translateX(0)" },
+          ],
+          { duration: 400 }
+        );
+      }
+    });
+
+    // Compose upgrade div layout
+    upgradeDiv.appendChild(infoDiv);
+    upgradeDiv.appendChild(costEl);
+    upgradeDiv.appendChild(buyBtn);
+
+    upgradesContainer.appendChild(upgradeDiv);
+  });
 }
 
-#cps-spc span {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-#buttons-container {
-  display: flex;
-  gap: 15px;
-  margin-bottom: 25px;
-}
-
-button {
-  background-color: #e76f51;
-  border: none;
-  border-radius: 15px;
-  padding: 15px 35px;
-  font-size: 1.3rem;
-  font-weight: 700;
-  color: #fff;
-  cursor: pointer;
-  box-shadow: 0 6px 12px #bb5137;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  transition: background-color 0.25s ease, transform 0.2s ease;
-  user-select: none;
-}
-
-button:hover {
-  background-color: #f4a261;
-  transform: scale(1.07);
-}
-
-button:active {
-  background-color: #d45730;
-  transform: scale(0.95);
-}
-
-button:disabled {
-  background-color: #9e7a6d;
-  cursor: not-allowed;
-  box-shadow: none;
-  transform: none;
-}
-
-/* Shop panel styling */
-#upgrades {
-  position: fixed;
-  top: 80px;
-  right: 0;
-  width: 350px;
-  max-width: 90vw;
-  height: calc(100vh - 100px);
-  background: #264653; /* dark teal */
-  box-shadow: -4px 0 15px rgba(0, 0, 0, 0.3);
-  border-left: 4px solid #2a9d8f;
-  padding: 25px;
-  overflow-y: auto;
-  transform: translateX(110%);
-  transition: transform 0.4s ease;
-  user-select: none;
-  z-index: 1000;
-  color: #f4f1de;
-  font-weight: 600;
-}
-
-#upgrades.shop-open {
-  transform: translateX(0);
-}
-
-.upgrade {
-  background: #2a9d8f;
-  margin-bottom: 15px;
-  padding: 14px 18px;
-  border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 15px;
-  transition: background-color 0.3s ease;
-}
-
-.upgrade:hover {
-  background: #3caea3;
-  cursor: pointer;
-}
-
-.upgrade .info {
-  flex-grow: 1;
-}
-
-.upgrade .name {
-  font-size: 1.1rem;
-  font-weight: 700;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  color: #f4f1de;
-}
-
-.upgrade .desc {
-  font-size: 0.9rem;
-  opacity: 0.8;
-  color: #c1dcdc;
-  margin-top: 3px;
-}
-
-.upgrade .cost {
-  font-weight: 700;
-  color: #ffe066;
-  min-width: 80px;
-  text-align: right;
-}
-
-.upgrade button {
-  background-color: #e76f51;
-  border-radius: 10px;
-  padding: 8px 14px;
-  font-weight: 700;
-  font-size: 1rem;
-  color: white;
-  border: none;
-  cursor: pointer;
-  transition: background-color 0.3s ease, transform 0.15s ease;
-  user-select: none;
-}
-
-.upgrade button:hover:not(:disabled) {
-  background-color: #f4a261;
-  transform: scale(1.1);
-}
-
-.upgrade button:disabled {
-  background-color: #a78e85;
-  cursor: not-allowed;
-  transform: none;
-}
-
-/* Icons inside upgrades */
-.upgrade .icon {
-  font-size: 1.8rem;
-  color: #ffe066;
-}
-
-/* Footer */
-footer {
-  margin-top: auto;
-  font-size: 0.9rem;
-  color: #264653;
-  opacity: 0.6;
-  user-select: none;
-  text-align: center;
-  width: 100%;
-  padding: 15px 0 5px;
-}
+// Initialize UI
+updateSubscriberDisplay();
+updateSPC();
+updateCPS();
+createUpgradesUI();
