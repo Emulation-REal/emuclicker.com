@@ -1,154 +1,196 @@
-/* Reset and base */
+/* Reset */
 * {
   box-sizing: border-box;
 }
+
 body {
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  background: linear-gradient(135deg, #2c3e50 0%, #4a6572 100%);
-  color: #ecf0f1;
   margin: 0;
-  min-height: 100vh;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background: #f0f4f8; /* Very soft pale blue */
+  color: #1a1a1a;
   display: flex;
   flex-direction: column;
   align-items: center;
+  min-height: 100vh;
   padding: 20px;
-  overflow-x: hidden; /* prevent horizontal scroll */
 }
 
-h1 {
-  margin-bottom: 10px;
+header h1 {
   font-weight: 900;
-  text-shadow: 0 0 8px rgba(236, 240, 241, 0.8);
+  font-size: 2.5rem;
+  color: #264653;
   user-select: none;
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 
 #stats {
-  margin-bottom: 10px;
+  margin: 15px 0;
   font-weight: 600;
-  font-size: 1.2rem;
+  font-size: 1.4rem;
   text-align: center;
   user-select: none;
+  display: flex;
+  gap: 30px;
+  justify-content: center;
+  color: #2a9d8f;
 }
-#cps-spc {
-  margin-top: 4px;
-  font-size: 1rem;
-  opacity: 0.8;
+
+#cps-spc span {
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 #buttons-container {
   display: flex;
-  gap: 12px;
-  margin-bottom: 20px;
+  gap: 15px;
+  margin-bottom: 25px;
 }
 
 button {
-  background-color: #3498db;
+  background-color: #e76f51;
   border: none;
-  border-radius: 12px;
-  color: white;
-  font-size: 1.5rem;
+  border-radius: 15px;
+  padding: 15px 35px;
+  font-size: 1.3rem;
   font-weight: 700;
-  padding: 15px 40px;
+  color: #fff;
   cursor: pointer;
-  box-shadow: 0 6px 12px #21618c;
-  transition: background-color 0.3s ease, transform 0.15s ease, box-shadow 0.3s ease;
+  box-shadow: 0 6px 12px #bb5137;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  transition: background-color 0.25s ease, transform 0.2s ease;
   user-select: none;
 }
+
 button:hover {
-  background-color: #5dade2;
-  box-shadow: 0 8px 18px #2980b9;
-  transform: scale(1.05);
+  background-color: #f4a261;
+  transform: scale(1.07);
 }
+
 button:active {
-  background-color: #2874a6;
-  box-shadow: inset 0 2px 4px #1b4f72;
+  background-color: #d45730;
   transform: scale(0.95);
 }
+
 button:disabled {
-  background-color: #5a6a7a;
+  background-color: #9e7a6d;
   cursor: not-allowed;
   box-shadow: none;
   transform: none;
 }
 
-/* Shop panel */
+/* Shop panel styling */
 #upgrades {
   position: fixed;
   top: 80px;
   right: 0;
-  width: 320px;
+  width: 350px;
   max-width: 90vw;
   height: calc(100vh - 100px);
-  background: rgba(44, 62, 80, 0.95);
-  border-left: 3px solid #2980b9;
+  background: #264653; /* dark teal */
+  box-shadow: -4px 0 15px rgba(0, 0, 0, 0.3);
+  border-left: 4px solid #2a9d8f;
+  padding: 25px;
   overflow-y: auto;
-  padding: 20px;
-  box-shadow: -4px 0 12px rgba(0, 0, 0, 0.6);
-  transform: translateX(100%);
-  transition: transform 0.35s ease;
-  z-index: 1000;
+  transform: translateX(110%);
+  transition: transform 0.4s ease;
   user-select: none;
+  z-index: 1000;
+  color: #f4f1de;
+  font-weight: 600;
 }
+
 #upgrades.shop-open {
   transform: translateX(0);
 }
+
 .upgrade {
-  background: rgba(236, 240, 241, 0.1);
-  margin: 10px 0;
+  background: #2a9d8f;
+  margin-bottom: 15px;
   padding: 14px 18px;
-  border-radius: 10px;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
   display: flex;
   justify-content: space-between;
   align-items: center;
-  box-shadow: 0 0 8px rgba(0,0,0,0.25);
+  gap: 15px;
   transition: background-color 0.3s ease;
 }
+
 .upgrade:hover {
-  background: rgba(236, 240, 241, 0.18);
+  background: #3caea3;
+  cursor: pointer;
 }
+
 .upgrade .info {
-  flex: 1;
-  padding-right: 10px;
+  flex-grow: 1;
 }
+
 .upgrade .name {
-  font-weight: 700;
   font-size: 1.1rem;
-  color: #dbe9fa;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #f4f1de;
 }
+
 .upgrade .desc {
   font-size: 0.9rem;
   opacity: 0.8;
-  color: #a3b1c6;
+  color: #c1dcdc;
+  margin-top: 3px;
 }
+
 .upgrade .cost {
-  margin-right: 15px;
   font-weight: 700;
-  font-size: 1rem;
-  color: #82caff;
+  color: #ffe066;
+  min-width: 80px;
+  text-align: right;
 }
+
 .upgrade button {
-  background-color: #2980b9;
-  border: none;
-  border-radius: 8px;
+  background-color: #e76f51;
+  border-radius: 10px;
   padding: 8px 14px;
   font-weight: 700;
+  font-size: 1rem;
   color: white;
+  border: none;
   cursor: pointer;
   transition: background-color 0.3s ease, transform 0.15s ease;
+  user-select: none;
 }
+
 .upgrade button:hover:not(:disabled) {
-  background-color: #5dade2;
+  background-color: #f4a261;
   transform: scale(1.1);
 }
+
 .upgrade button:disabled {
-  background-color: #4a6572;
+  background-color: #a78e85;
   cursor: not-allowed;
   transform: none;
 }
 
+/* Icons inside upgrades */
+.upgrade .icon {
+  font-size: 1.8rem;
+  color: #ffe066;
+}
+
+/* Footer */
 footer {
   margin-top: auto;
   font-size: 0.9rem;
+  color: #264653;
   opacity: 0.6;
   user-select: none;
+  text-align: center;
+  width: 100%;
+  padding: 15px 0 5px;
 }
