@@ -1,5 +1,4 @@
-// script.js
-(() => {
+document.addEventListener('DOMContentLoaded', () => {
   const subscribeBtn = document.getElementById("subscribe-btn");
   const subscriberCountEl = document.getElementById("subscriber-count");
   const cpsEl = document.getElementById("cps");
@@ -15,7 +14,6 @@
   let cps = 0;
   let subsPerSecond = 0;
 
-  // Upgrade definitions (name, base cost, base effect, icon class)
   const upgrades = [
     { id: "camera", name: "Better Camera", baseCost: 15, effect: 1, icon: "fa-camera" },
     { id: "editing", name: "Faster Editing", baseCost: 50, effect: 2, icon: "fa-film" },
@@ -29,11 +27,9 @@
     { id: "team", name: "Production Team", baseCost: 120000, effect: 2500, icon: "fa-users" }
   ];
 
-  // Tracks how many of each upgrade the player owns
   const owned = {};
   upgrades.forEach(u => owned[u.id] = 0);
 
-  // Create upgrade elements dynamically
   function createUpgradeItem(upgrade) {
     const div = document.createElement("div");
     div.classList.add("upgrade-item");
@@ -89,35 +85,29 @@
     return div;
   }
 
-  // Cost increases exponentially: baseCost * 1.15^ownedCount (rounded)
   function getUpgradeCost(id) {
     const upgrade = upgrades.find(u => u.id === id);
     return Math.floor(upgrade.baseCost * Math.pow(1.15, owned[id]));
   }
 
-  // Update subscriber count display
   function updateSubscribers() {
     subscriberCountEl.innerHTML = `<i class="fa-solid fa-users"></i> Subscribers: ${Math.floor(subscribers)}`;
   }
 
-  // Update CPS, SPC, SPS stats
   function updateStats() {
     cpsEl.textContent = cps.toFixed(1);
     spcEl.textContent = subsPerClick.toFixed(1);
     spsEl.textContent = subsPerSecond.toFixed(1);
   }
 
-  // Subscribe button click handler
   subscribeBtn.addEventListener("click", () => {
     subscribers += subsPerClick;
     clicks++;
     updateSubscribers();
 
-    // Animation
     subscribeBtn.classList.add("clicked");
     setTimeout(() => subscribeBtn.classList.remove("clicked"), 150);
 
-    // CPS calculation
     const now = Date.now();
     if (lastClickTime !== 0) {
       const delta = (now - lastClickTime) / 1000;
@@ -128,7 +118,6 @@
     updateStats();
   });
 
-  // Passive subs per second from upgrades (for example, sum owned * effect * 0.1)
   function calculateSPS() {
     let spsTotal = 0;
     upgrades.forEach(upg => {
@@ -137,15 +126,13 @@
     return spsTotal;
   }
 
-  // Game loop to add passive subs and update stats
   setInterval(() => {
     subsPerSecond = calculateSPS();
-    subscribers += subsPerSecond / 10; // Run 10 times per sec for smoothness
+    subscribers += subsPerSecond / 10;
     updateSubscribers();
     updateStats();
   }, 100);
 
-  // Shop toggle logic
   shopToggleBtn.addEventListener("click", () => {
     const isHidden = upgradesSection.getAttribute("aria-hidden") === "true";
     if (isHidden) {
@@ -160,18 +147,16 @@
     }
   });
 
-  // Initialize upgrades list
   function initUpgrades() {
     upgrades.forEach(upg => {
       const upgItem = createUpgradeItem(upg);
       upgradesSection.appendChild(upgItem);
     });
-    // Start with shop hidden
     upgradesSection.style.transform = "translateX(100%)";
+    upgradesSection.setAttribute("aria-hidden", "true");
   }
 
-  // Initialize
   initUpgrades();
   updateSubscribers();
   updateStats();
-})();
+});
