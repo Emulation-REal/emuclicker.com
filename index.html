@@ -8,10 +8,21 @@
 </head>
 <body>
   <h1>EmuClicker.com</h1>
-  <div id="subscriber-count">Subscribers: 0</div>
-  <button id="subscribe-btn">Subscribe!</button>
 
-  <div id="upgrades"></div>
+  <div id="stats">
+    <div id="subscriber-count">Subscribers: 0</div>
+    <div id="cps-spc">
+      <span>Clicks Per Second: <span id="cps">0</span></span> |
+      <span>Subs Per Click: <span id="spc">1</span></span>
+    </div>
+  </div>
+
+  <div id="buttons-container">
+    <button id="subscribe-btn">Subscribe!</button>
+    <button id="shop-toggle-btn">Shop</button>
+  </div>
+
+  <div id="upgrades" class="shop-closed"></div>
 
   <footer>
     Made by Emulation12 — YouTube Clicker Game
